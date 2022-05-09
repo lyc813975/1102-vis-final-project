@@ -1,14 +1,9 @@
-let link_file = "out/Link.csv"
-let node_file = "單日同站進出/Node.csv"
 //創建svg
 let svg = d3.select("#Canvas")
     .append("svg")
     .attr('width' , 2000)
     .attr('height' ,2000)
-let graph_date_text = svg.append('text')
-    .attr("x", 900)
-    .attr("y", 200)
-    .style("font-size" , "36px")
+
 //創建tooltips  的svg
 let tooltip = d3.select("#Canvas")
     .append("svg")
@@ -27,174 +22,6 @@ tooltip.append("text")
     .style("fill" , "white")
     .style("font-size" , "20px")
 
-// args: 年,月,日 
-// func: 回傳Time_And_All_Data所對應的第一個索引
-function get_first_index(year, month, day) { return (year-2017) * 12 + month - 1 }
-// args: 年,月,日 
-// func: 回傳Time_And_All_Data所對應的第二個索引
-function get_second_index(year, month, day) { return day - 1 }
-
-// args: 年,月,日 
-// func: 根據給定日期 繪製繪製圖表
-function draw_graph(year, month, day) {
-    february_last_day = (year != 2020)? 28 : 29
-    if (([4, 6, 9, 11].includes(month) && day == 31) ||
-            (month == 2 && day > february_last_day)) {
-        date = "無效日期"
-        draw_date(date)
-        return
-    }
-    date = String(year) + "/" + String(month) + "/" + String(day)
-    draw_date(date)
-
-    i = get_first_index(year, month, day)
-    j = get_second_index(year, month, day)
-    source_data = Time_and_All_Data[i][j]
-    draw_node(source_data)
-    draw_link(source_data)
-}
-
-function draw_link(source_data) {
-    let Min_Line_width = d3.min(source_data.route , d => {
-        if(d.route_sum!=0){
-            return d.route_sum
-        }
-    }) 
-    let Max_Line_width = d3.max(source_data.route , d => d.route_sum) 
-    //console.log("Max =" , Max_Line_width)
-    //console.log("Min = ",Min_Line_width)
-
-    //控制線的寬度
-    let Line_Width = d3.scaleLinear()
-                    .domain([Min_Line_width,Max_Line_width])
-                    .range([2,10])
-    svg.append("g").attr("class" , "Not_Yellow_Line")
-        .selectAll("line")
-        .data(source_data.route)//先給2017 01 01 的資料， 因為一開始還是要一張圖
-        .enter().filter((d)=>d.route_sum!=0)
-        .append("line")
-        .attr("x1" , (d)=>xScale(d.start_pos_x))
-        .attr("y1" , (d)=>yScale(d.start_pos_y))
-        .attr("x2" , (d)=>xScale(d.next_pos_x))
-        .attr("y2" , (d)=>yScale(d.next_pos_y))
-        .style("stroke-width" ,(d)=>Line_Width(d.route_sum))
-        .style("stroke" , (d)=>d.route_color)
-        .on("click" , function(d){
-            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
-            console.log("d = " , d.srcElement.__data__)
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('line').style('stroke' , function(data){
-                return data.route_color
-            })
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('circle').style('fill' , function(data){
-                return data.colors[0]
-            })
-            //將選取的轉為白色
-            d3.select(this).style('stroke','white')
-        })
-    svg.append("g").attr("class" , "Yellow_Line")
-        .selectAll("line")
-        .data(source_data.route)//先給2017 01 01 的資料， 因為一開始還是要一張圖
-        .enter().filter((d,index)=>index>=116)
-        .append("line")
-        .attr("x1" , (d)=>xScale(d.start_pos_x))
-        .attr("y1" , (d)=>yScale(d.start_pos_y))
-        .attr("x2" , (d)=>xScale(d.next_pos_x))
-        .attr("y2" , (d)=>yScale(d.next_pos_y))
-        .style("stroke-width" ,(d)=>0)
-        .style("stroke" , (d)=>d.route_color)
-        .on("click" , function(d){
-            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
-            console.log("d = " , d.srcElement.__data__)
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('line').style('stroke' , function(data){
-                return data.route_color
-            })
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('circle').style('fill' , function(data){
-                return data.colors[0]
-            })
-            //將選取的轉為白色
-            d3.select(this).style('stroke','white')
-        })
-}
-
-function draw_node(source_data) {
-    let Min_Circle_radius = d3.min(source_data.station , d=>{
-        if(d.Sum!=0){
-            return d.Sum
-        }
-    })
-    let Max_Circle_radius = d3.max(source_data.station , d => d.Sum) 
-    //console.log("MAx = " , Max_Circle_radius)
-    //console.log("Min = " , Min_Circle_radius)
-
-    //控制圓的大小
-    let Radius = d3.scaleLinear()
-                    .domain([Min_Circle_radius,Max_Circle_radius])
-                    .range([5,15])
-    svg.append("g").attr("class" , "Not_Yellow_Circle")
-        .selectAll("circle")
-        .data(source_data.station)
-        .enter().filter((d)=>d.Sum!=0)
-        .append("circle")
-        .attr("cx" , (d)=>xScale(d.x))
-        .attr("cy" , (d)=>yScale(d.y))
-        .style("r" ,(d)=>Radius(d.Sum))
-        .style("fill" , (d)=>d.colors[0])
-        .style("stroke" , "black")
-        .on("click" , function(d){
-            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
-            console.log("d = " , d.srcElement.__data__)
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('line').style('stroke' , function(data){
-                return data.route_color
-            })
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('circle').style('fill' , function(data){
-                return data.colors[0]
-            })
-            //將選取的轉為白色
-            d3.select(this).style('fill','white')
-        })
-        .on("mousemove",(d)=>{
-            tooltip.select('text').html(d.srcElement.__data__.station)
-            tooltip.style("display","block")
-        })
-        .on("mouseleave",(d)=>{
-            tooltip.style("display","none")
-        })
-    svg.append("g").attr("class" , "Yellow_Circle")
-        .selectAll("circle")
-        .data(source_data.station)
-        .enter().filter((d)=>d.Sum==0)
-        .append("circle")
-        .attr("cx" , (d)=>xScale(d.x))
-        .attr("cy" , (d)=>yScale(d.y))
-        .style("r" , 0 )
-        .style("fill" , (d)=>d.colors[0])
-        .style("stroke" , "black")
-        .on("click" , function(d){
-            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
-            console.log("d = " , d.srcElement.__data__)
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('line').style('stroke' , function(data){
-                return data.route_color
-            })
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('circle').style('fill' , function(data){
-                return data.colors[0]
-            })
-            //將選取的轉為白色
-            d3.select(this).style('fill','white')
-        })
-}
-
-function draw_date(date) {
-    graph_date_text.text(date)
-}
-
 //獲取提交按鈕
 let Submit_btn = document.getElementById("submit_button")
 //線性轉換
@@ -206,7 +33,6 @@ let xScale = d3.scaleLinear()
     .range([0,1500])
 //圓半徑 跟  線寬度  可能要再想想，  因為根據Range的不同，可能上下限不同
 var Every_Route = []
-// 2D list: [year&month][day]
 let Time_and_All_Data = []
 var Station = []
 //讀取路線資料ˊ ˇ ˋ  
@@ -243,7 +69,7 @@ d3.csv("路線.csv").then((data)=>{
         d.next_pos_x = the_next_station.x
         d.next_pos_y = the_next_station.y
     }) 
-    return d3.csv(link_file)
+    return d3.csv("out/all.csv")
 }).then((All_Path_Data)=>{
 //有Station{ station , index , Sum = 0 , x , y , colors}
 //有Every_Route{ route_color , start_station  , next_station  , start_pos_x , start_pos_y ,
@@ -267,8 +93,7 @@ d3.csv("路線.csv").then((data)=>{
                 
                 //反正之後都要  先放到時候直接取代就好(station)
                 //console.log("Every =" , Every_Route)
-                Temp_Data.push({station : JSON.parse(JSON.stringify(Station)),
-                    route : JSON.parse(JSON.stringify(Every_Route))})
+                Temp_Data.push({station : JSON.parse(JSON.stringify(Station)) , route : JSON.parse(JSON.stringify(Every_Route))})
             }
             D = Day
             //Temp_Route.splice(0,Temp_Route.length)
@@ -310,7 +135,7 @@ d3.csv("路線.csv").then((data)=>{
         }
     })
     //這裡到時候return 整理好的Station資料
-    return d3.csv(node_file)
+    return d3.csv("單日同站進出/Total.csv")
 }).then((All_Station_Data)=>{
     //console.log("Time_and_ALL =" , Time_and_All_Data)
     //console.log("2017 5月 Time_and_ALL =" , Time_and_All_Data[4])
@@ -340,8 +165,139 @@ d3.csv("路線.csv").then((data)=>{
     return undefined
 }).then(()=>{
     //console.log("Time_and_ALL =" , Time_and_All_Data)
-    draw_graph(2017, 1, 1) // 作為預設顯示 避免初始畫面空白
-    
+    //這裡開始畫圖
+    //目前這裡是畫線的
+    //Time_and_All_Data . route =>{ route_color , start_station  , next_station  , start_pos_x , start_pos_y ,
+    //                               next_pos_x , next_pos_y , route_sum}
+    let Min_Line_width = d3.min(Time_and_All_Data[0][0].route , d => {
+        if(d.route_sum!=0){
+            return d.route_sum
+        }
+    }) 
+    let Max_Line_width = d3.max(Time_and_All_Data[0][0].route , d => d.route_sum) 
+    //console.log("Max =" , Max_Line_width)
+    //console.log("Min = ",Min_Line_width)
+    let Min_Circle_radius = d3.min(Time_and_All_Data[0][0].station , d=>{
+        if(d.Sum!=0){
+            return d.Sum
+        }
+    })
+    let Max_Circle_radius = d3.max(Time_and_All_Data[0][0].station , d => d.Sum) 
+    //console.log("MAx = " , Max_Circle_radius)
+    //console.log("Min = " , Min_Circle_radius)
+    //控制線的寬度
+    let Line_Width = d3.scaleLinear()
+                        .domain([Min_Line_width,Max_Line_width])
+                        .range([2,10]) 
+    //控制圓的大小
+    let Radius = d3.scaleLinear()
+                    .domain([Min_Circle_radius,Max_Circle_radius])
+                    .range([5,15])
+    svg.append("g").attr("class" , "Not_Yellow_Line")
+        .selectAll("line")
+        .data(Time_and_All_Data[0][0].route)//先給2017 01 01 的資料， 因為一開始還是要一張圖
+        .enter().filter((d)=>d.route_sum!=0)
+        .append("line")
+        .attr("x1" , (d)=>xScale(d.start_pos_x))
+        .attr("y1" , (d)=>yScale(d.start_pos_y))
+        .attr("x2" , (d)=>xScale(d.next_pos_x))
+        .attr("y2" , (d)=>yScale(d.next_pos_y))
+        .style("stroke-width" ,(d)=>Line_Width(d.route_sum))
+        .style("stroke" , (d)=>d.route_color)
+        .on("click" , function(d){
+            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
+            console.log("d = " , d.srcElement.__data__)
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('line').style('stroke' , function(data){
+                return data.route_color
+            })
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('circle').style('fill' , function(data){
+                return data.colors[0]
+            })
+            //將選取的轉為白色
+            d3.select(this).style('stroke','white')
+        })
+    svg.append("g").attr("class" , "Yellow_Line")
+        .selectAll("line")
+        .data(Time_and_All_Data[0][0].route)//先給2017 01 01 的資料， 因為一開始還是要一張圖
+        .enter().filter((d,index)=>index>=116)
+        .append("line")
+        .attr("x1" , (d)=>xScale(d.start_pos_x))
+        .attr("y1" , (d)=>yScale(d.start_pos_y))
+        .attr("x2" , (d)=>xScale(d.next_pos_x))
+        .attr("y2" , (d)=>yScale(d.next_pos_y))
+        .style("stroke-width" ,(d)=>0)
+        .style("stroke" , (d)=>d.route_color)
+        .on("click" , function(d){
+            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
+            console.log("d = " , d.srcElement.__data__)
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('line').style('stroke' , function(data){
+                return data.route_color
+            })
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('circle').style('fill' , function(data){
+                return data.colors[0]
+            })
+            //將選取的轉為白色
+            d3.select(this).style('stroke','white')
+        })
+    svg.append("g").attr("class" , "Not_Yellow_Circle")
+        .selectAll("circle")
+        .data(Time_and_All_Data[0][0].station)//先給2017 01 01 的資料， 因為一開始還是要一張圖
+        .enter().filter((d)=>d.Sum!=0)
+        .append("circle")
+        .attr("cx" , (d)=>xScale(d.x))
+        .attr("cy" , (d)=>yScale(d.y))
+        .style("r" ,(d)=>Radius(d.Sum))
+        .style("fill" , (d)=>d.colors[0])
+        .style("stroke" , "black")
+        .on("click" , function(d){
+            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
+            console.log("d = " , d.srcElement.__data__)
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('line').style('stroke' , function(data){
+                return data.route_color
+            })
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('circle').style('fill' , function(data){
+                return data.colors[0]
+            })
+            //將選取的轉為白色
+            d3.select(this).style('fill','white')
+        })
+        .on("mousemove",(d)=>{
+            tooltip.select('text').html(d.srcElement.__data__.station)
+            tooltip.style("display","block")
+        })
+        .on("mouseleave",(d)=>{
+            tooltip.style("display","none")
+        })
+    svg.append("g").attr("class" , "Yellow_Circle")
+        .selectAll("circle")
+        .data(Time_and_All_Data[0][0].station)//先給2017 01 01 的資料， 因為一開始還是要一張圖
+        .enter().filter((d)=>d.Sum==0)
+        .append("circle")
+        .attr("cx" , (d)=>xScale(d.x))
+        .attr("cy" , (d)=>yScale(d.y))
+        .style("r" , 0 )
+        .style("fill" , (d)=>d.colors[0])
+        .style("stroke" , "black")
+        .on("click" , function(d){
+            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
+            console.log("d = " , d.srcElement.__data__)
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('line').style('stroke' , function(data){
+                return data.route_color
+            })
+            //這能將所有circle轉為原本的顏色
+            d3.selectAll('circle').style('fill' , function(data){
+                return data.colors[0]
+            })
+            //將選取的轉為白色
+            d3.select(this).style('fill','white')
+        })
     //這裡晚點做button的東東  我是想直接做日曆的啦，但是晚點，Button有現成的 ，日曆要學
     Submit_btn.addEventListener("click",function(){
         //獲取"天"跟"月"跟"年"的下拉選單
@@ -352,9 +308,11 @@ d3.csv("路線.csv").then((data)=>{
         var Day = +Day_selector.options[Day_selector.selectedIndex].value
         var Month = +Month_Selector.options[Month_Selector.selectedIndex].value
         var Year = +Year_Selector.options[Year_Selector.selectedIndex].value
+        //雖說獲取了  但我還沒丟進去update 
         console.log("Year" , Year , " Month" , Month , " Day" , Day)
+        var first_index = (Year-2017) * 12 + Month - 1 
         //       資料及   年月   日
-        draw_graph(Year, Month, Day)
+        update( Time_and_All_Data , first_index , Day - 1 )
     })
 })
 
@@ -364,4 +322,81 @@ function Exp1(Exp_Data){
     return new Promise(function(resolve,reject){
         resolve(Exp_Data)
     })
+}
+
+//         這邊的update是先算當日的   一個range之後再想ˊ ˇ ˋ  要不然怕range沒做出來 浪費時間
+//         資料集Time那個   年月份計算後的      日期-1過後的
+function update( dataset , First_Index   , Second_Index){
+    let Min_Line_width = d3.min(dataset[First_Index][Second_Index].route , d => {
+        if(d.route_sum!=0){
+            return d.route_sum
+        }
+    }) 
+    let Max_Line_width = d3.max(dataset[First_Index][Second_Index].route , d => d.route_sum) 
+    var Here_Line_Width = d3.scaleLinear()
+                        .domain([Min_Line_width,Max_Line_width])
+                        .range([2,10]) 
+    var Min_Circle_radius = d3.min(dataset[First_Index][Second_Index].station , d=>{
+        if(d.Sum!=0){
+            return d.Sum
+        }
+    })
+    var Max_Circle_radius = d3.max(dataset[First_Index][Second_Index].station , d => d.Sum) 
+    let Here_Radius = d3.scaleLinear()
+                    .domain([Min_Circle_radius,Max_Circle_radius])
+                    .range([5,15])
+//這邊開始做更改
+//這邊是線的
+    var Yellow_Data = []
+    dataset[First_Index][Second_Index].route.forEach((d,index)=>{
+        if(index>=116){
+            Yellow_Data.push(d)
+        }
+    })
+    let Yellow_Line = svg.select(".Yellow_Line")
+                        .selectAll("line")
+                        .data(Yellow_Data)
+    Yellow_Line.transition().duration(500)
+            .style("stroke" , (d)=>d.route_color)
+            .style("stroke-width" ,function(d){
+                if(d.route_sum!=0){
+                    return Here_Line_Width(d.route_sum)
+                }
+                return 0
+            })
+    let Not_Yellow_Line = svg.select(".Not_Yellow_Line")
+                        .selectAll("line")
+                        .data(dataset[First_Index][Second_Index].route)
+                        .filter((d,index)=>index<116)                 
+    Not_Yellow_Line.transition().duration(500)
+                .style("stroke-width" ,(d)=>Here_Line_Width(d.route_sum))
+                .style("stroke" , (d)=>d.route_color)
+//這邊是圓的
+    var Yellow_Station_Data = []
+    dataset[First_Index][Second_Index].station.forEach((d,index)=>{
+        if(index>=108){
+            Yellow_Station_Data.push(d)
+        }
+    })
+    console.log("data=" , Yellow_Station_Data)
+    let Yellow_Circle = svg.select(".Yellow_Circle")
+                    .selectAll("circle")
+                    .data(Yellow_Station_Data)
+    Yellow_Circle.transition().duration(500)
+        .style("fill" , (d)=>d.colors[0])
+        .style("r" ,function(d){
+            if(d.Sum!=0){
+                console.log("data =" , Here_Radius(d.Sum))
+                return Here_Radius(d.Sum) + "px"
+            }
+            return 0 + "px"
+
+        })
+    let Not_Yellow_Circle = svg.select(".Not_Yellow_Circle")
+                    .selectAll("circle")
+                    .data(dataset[First_Index][Second_Index].station)
+                    .filter((d,index)=>index<108)
+    Not_Yellow_Circle.transition().duration(500)
+            .style("r" ,(d)=>Here_Radius(d.Sum))
+            .style("fill" , (d)=>d.colors[0])
 }
