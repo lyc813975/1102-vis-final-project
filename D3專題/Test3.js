@@ -1,3 +1,5 @@
+let link_file = "out/Link.csv"
+let node_file = "單日同站進出/Node.csv"
 //創建svg
 let svg = d3.select("#Canvas")
     .append("svg")
@@ -69,7 +71,7 @@ d3.csv("路線.csv").then((data)=>{
         d.next_pos_x = the_next_station.x
         d.next_pos_y = the_next_station.y
     }) 
-    return d3.csv("out/all.csv")
+    return d3.csv(link_file)
 }).then((All_Path_Data)=>{
 //有Station{ station , index , Sum = 0 , x , y , colors}
 //有Every_Route{ route_color , start_station  , next_station  , start_pos_x , start_pos_y ,
@@ -135,7 +137,7 @@ d3.csv("路線.csv").then((data)=>{
         }
     })
     //這裡到時候return 整理好的Station資料
-    return d3.csv("單日同站進出/Total.csv")
+    return d3.csv(node_file)
 }).then((All_Station_Data)=>{
     //console.log("Time_and_ALL =" , Time_and_All_Data)
     //console.log("2017 5月 Time_and_ALL =" , Time_and_All_Data[4])
