@@ -2,15 +2,40 @@
 //                                          年     月   日                       年      月    日
 $("#date").datepicker({
     minDate: new Date(2017, 1 - 1, 1), maxDate: new Date(2021, 12 - 1, 31), changeMonth: true
-    , changeYear: true
+    , changeYear: true , onClose:function(selectedDate){
+        if(selectedDate != ""){
+            $( "#date2" ).datepicker( "option", "minDate", selectedDate );
+        }else{
+            $( "#date2" ).datepicker( "option", "minDate", new Date(2017, 1 - 1, 1) );
+        }
+            
+    }
 });
+
+$("#date2").datepicker({
+    minDate: new Date(2017, 1 - 1, 1), maxDate: new Date(2021, 12 - 1, 31), changeMonth: true
+    , changeYear: true , onClose:function(selectedDate){
+        if(selectedDate != ""){
+            $( "#date" ).datepicker( "option", "maxDate", selectedDate );
+        }else{
+            $( "#date" ).datepicker( "option", "maxDate", new Date(2021, 12 - 1, 31) );
+        }
+        
+    }
+});
+
+$("#date2").datepicker("option", "dateFormat", "yy-mm-dd")
 $("#date").datepicker("option", "dateFormat", "yy-mm-dd")
+
 let the_date = document.getElementById("date")
 $("#date").change(function (d) {
-    var Year = +the_date.value.split("-")[0]
-    var Month = +the_date.value.split("-")[1]
-    var Day = +the_date.value.split("-")[2]
-    update_network(Year, Month, Day)
+    if(the_date.value != ""){
+        console.log("theDate" , the_date.value)
+        var Year = +the_date.value.split("-")[0]
+        var Month = +the_date.value.split("-")[1]
+        var Day = +the_date.value.split("-")[2]
+        update_network(Year, Month, Day)
+    }
 })
 let Find_Station_System = document.getElementById("Find_Station")
 let Name = []
@@ -187,6 +212,14 @@ d3.csv("路線.csv").then((data) => {
                 var sum_in = +d.in_sum
                 var sum_out = +d.out_sum
                 Time_and_All_Data[first][second].station[sta].Sum = sum_in + sum_out
+<<<<<<< Updated upstream
+=======
+                if (year == 2018 && month == 1 && day == 1) {
+                   // console.log(d.station, d.in_sum, d.out_sum)
+                   // console.log(Time_and_All_Data[first][second].station[sta].Sum)
+                    //console.log(sum_in + sum_out)
+                }
+>>>>>>> Stashed changes
             }
         }
 
@@ -355,7 +388,7 @@ async function display_in_time_interval(
             else
                 var max_day = day_of_month[month]
             for (day = min_day; day <= max_day; ++day) {
-                console.log(year, month, day)
+                //console.log(year, month, day)
                 update_network(year, month, day)
                 await sleep(750)
             }
