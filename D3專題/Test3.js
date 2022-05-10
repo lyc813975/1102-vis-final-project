@@ -342,6 +342,7 @@ function update_link(source_data) {
         .transition().duration(500)
         .style("stroke-width", (d) => (d.route_sum == 0) ? 0 : width_scale(d.route_sum))
 }
+
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 async function range_display(
         y1 = 2017, m1 = 1, d1 = 1,
