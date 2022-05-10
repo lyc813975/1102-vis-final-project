@@ -37,10 +37,10 @@ tooltip.append("text")
     .style("font-size", "20px")
 //線性轉換
 let yScale = d3.scaleLinear()
-    .domain([24.95, 25.2])
+    .domain([24.95, 25.17])
     .range([1000, 0])
 let xScale = d3.scaleLinear()
-    .domain([121.4, 121.7])
+    .domain([121.39, 121.62])
     .range([0, 1500])
 //圓半徑 跟  線寬度  可能要再想想，  因為根據Range的不同，可能上下限不同
 var Every_Route = []
@@ -167,56 +167,21 @@ d3.csv("路線.csv").then((data) => {
         //找車站，並且改值
         for (var sta = 0; sta < Station.length; sta++) {
             if (Time_and_All_Data[first][second].station[sta].station == d.station) {
+    
                 var sum_in = +d.in_sum
                 var sum_out = +d.out_sum
                 Time_and_All_Data[first][second].station[sta].Sum = sum_in + sum_out
+                if (year == 2018 && month == 1 && day == 1) {
+                    console.log(d.station, d.in_sum, d.out_sum)
+                    console.log(Time_and_All_Data[first][second].station[sta].Sum)
+                    console.log(sum_in + sum_out)
+                }
             }
         }
 
     })
     //還不知道return啥  可能不用吧
     return undefined
-<<<<<<< HEAD
-}).then(()=>{
-    // 新增line及其相關event
-    svg.append("g")
-        .selectAll("line")
-        .data(Time_and_All_Data[0][0].route)//先給2017 01 01 的資料， 因為一開始還是要一張圖
-        .enter()
-        .append("line")
-        .attr("x1" , (d)=>xScale(d.start_pos_x))
-        .attr("y1" , (d)=>yScale(d.start_pos_y))
-        .attr("x2" , (d)=>xScale(d.next_pos_x))
-        .attr("y2" , (d)=>yScale(d.next_pos_y))
-        .style("stroke-width" ,0)
-        .style("stroke" , (d)=>d.route_color)
-        .on("click" , function(d){
-            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
-            console.log("d = " , d.srcElement.__data__)
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('line').style('stroke' , function(data){
-                return data.route_color
-            })
-            //這能將所有circle轉為原本的顏色
-            d3.selectAll('circle').style('fill' , function(data){
-                return data.colors[0]
-            })
-            //將選取的轉為白色
-            d3.select(this).style('stroke','white')
-        })
-    // 新增node及其相關event
-    svg.append("g")
-        .selectAll("circle")
-        .data(Time_and_All_Data[0][0].station)//先給2017 01 01 的資料， 因為一開始還是要一張圖
-        .enter()
-        .append("circle")
-        .attr("cx" , (d)=>xScale(d.x))
-        .attr("cy" , (d)=>yScale(d.y))
-        .style("r" , 0)
-        .style("fill" , (d)=>d.colors[0])
-        .style("stroke" , "black")
-        .on("click" , function(d){
-=======
 }).then(() => {
     //console.log("Time_and_ALL =" , Time_and_All_Data)
     //Time_and_All_Data . route =>{ route_color , start_station  , next_station  , start_pos_x , start_pos_y ,
@@ -269,7 +234,6 @@ d3.csv("路線.csv").then((data) => {
         .style("fill", (d) => d.colors[0])
         .style("stroke", "black")
         .on("click", function (d) {
->>>>>>> 1a47bbf71043ee0c7ffb1c32f043eaea4a4ff213
             //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
             console.log("d = ", d.srcElement.__data__)
             //這能將所有circle轉為原本的顏色
@@ -287,17 +251,10 @@ d3.csv("路線.csv").then((data) => {
             tooltip.select('text').html(d.srcElement.__data__.station)
             tooltip.style("display", "block")
         })
-<<<<<<< HEAD
-        .on("mouseleave",(d)=>{
-            tooltip.style("display","none")
-        })
-    update(Time_and_All_Data, 0, 0)
-=======
         .on("mouseleave", (d) => {
             tooltip.style("display", "none")
         })
         update_network(2017, 1, 1)
->>>>>>> 1a47bbf71043ee0c7ffb1c32f043eaea4a4ff213
 })
 
 //實驗1  成功  只是做為return一個資料讓then接收
@@ -308,39 +265,6 @@ function Exp1(Exp_Data) {
     })
 }
 
-<<<<<<< HEAD
-//         這邊的update是先算當日的   一個range之後再想ˊ ˇ ˋ  要不然怕range沒做出來 浪費時間
-//         資料集Time那個   年月份計算後的      日期-1過後的
-function update(d){
-    let Min_Line_width = d3.min(dataset[First_Index][Second_Index].route , d => {
-        if(d.route_sum!=0){
-            return d.route_sum
-        }
-    }) 
-    let Max_Line_width = d3.max(dataset[First_Index][Second_Index].route , d => d.route_sum) 
-    var Here_Line_Width = d3.scaleLinear()
-                        .domain([Min_Line_width,Max_Line_width])
-                        .range([2,10]) 
-    var Min_Circle_radius = d3.min(dataset[First_Index][Second_Index].station , d=>{
-        if(d.Sum!=0){
-            return d.Sum
-        }
-    })
-    var Max_Circle_radius = d3.max(dataset[First_Index][Second_Index].station , d => d.Sum) 
-    let Here_Radius = d3.scaleLinear()
-                    .domain([Min_Circle_radius,Max_Circle_radius])
-                    .range([5,15])
-
-    svg.selectAll("line")
-        .data(dataset[First_Index][Second_Index].route)
-        .transition().duration(500)
-        .style("stroke-width" ,(d)=> (d.route_sum == 0) ? 0 : Here_Line_Width(d.route_sum))
-    svg.selectAll("circle")
-        .data(dataset[First_Index][Second_Index].station)
-        .transition().duration(500)
-        .style("r" ,function (d) {
-            radius = (d.Sum == 0) ? 0 : Here_Radius(d.Sum)
-=======
 // args: 年月日
 // func: 回傳Time_and_All_Data對應的第一個索引
 function get_first_index(year, month, day) { return (year - 2017) * 12 + month - 1 }
@@ -363,7 +287,9 @@ function update_date(year, month, day) {
     s = String(year) + "/" + String(month) + "/" + String(day)
     date_box.text(s)
 }
+
 function update_node(source_data) {
+    console.log(source_data.station)
     var min_node_throughput = d3.min(source_data.station, d => {
         if (d.Sum != 0) {
             return d.Sum
@@ -378,13 +304,11 @@ function update_node(source_data) {
         .transition().duration(500)
         .style("r", function (d) {
             radius = (d.Sum == 0) ? 0 : radius_scale(d.Sum)
->>>>>>> 1a47bbf71043ee0c7ffb1c32f043eaea4a4ff213
             return radius + "px"
         })
 }
 
 function update_link(source_data) {
-    console.log("dsdssd")
     var min_link_flow = d3.min(source_data.route, d => {
         if (d.route_sum != 0) return d.route_sum
     })
@@ -396,4 +320,28 @@ function update_link(source_data) {
         .data(source_data.route)
         .transition().duration(500)
         .style("stroke-width", (d) => (d.route_sum == 0) ? 0 : width_scale(d.route_sum))
+}
+const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+async function range_display(
+        y1 = 2017, m1 = 1, d1 = 1,
+        y2 = 2021, m2 = 12, d2 = 31) {
+    day_of_month = [-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    for (year = y1; year <= y2; ++year) {
+        var min_month = (year == y1) ? m1 : 1
+        var max_month = (year == y2) ? m2 : 12
+        for (month = min_month; month <= max_month; ++month) {
+            var min_day = (year == y1 && month == m1) ? d1 : 1
+            if (year == y2 && month == m2)
+                var max_day = d2
+            else if (year == 2020 && month == 2)
+                var max_day = 29
+            else
+                var max_day = day_of_month[month]
+            for (day = min_day; day <= max_day; ++day) {
+                console.log(year, month, day)
+                update_network(year, month, day)
+                await sleep(750)
+            }
+        }
+    }
 }
