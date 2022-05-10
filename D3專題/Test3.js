@@ -12,6 +12,19 @@ $("#date").change(function (d) {
     var Day = +the_date.value.split("-")[2]
     update_network(Year, Month, Day)
 })
+let Find_Station_System = document.getElementById("Find_Station")
+let Name = []
+//尋車站機制
+Find_Station_System.addEventListener("input",function(d){
+    let ID_Name = "#" + d.data
+    let Station_Be_Find = svg.selectAll(ID_Name)
+    if(!Station_Be_Find.empty()){
+        console.log("Station = " , Station_Be_Find)
+        svg.selectAll("line").style("opacity" , 0.3)
+        svg.selectAll("circle").style("opacity" , 0.3)
+        Station_Be_Find.style("opacity" , 1)
+    }
+})
 //創建svg
 let svg = d3.select("#Canvas")
     .append("svg")
@@ -28,6 +41,10 @@ let tooltip = d3.select("#Canvas")
     .style('position', 'absolute')
 d3.select("#Canvas").on("mousemove", function (e) {
     tooltip.style("left", e.layerX + 20).style("top", e.layerY + 35)
+})
+d3.select("#Canvas").on("click", function () {
+    svg.selectAll("line").transition().duration(500).style("opacity" , 1)
+    svg.selectAll("circle").transition().duration(500).style("opacity" , 1)
 })
 tooltip.append("text")
     .attr("x", "50%")
@@ -211,7 +228,11 @@ d3.csv("路線.csv").then((data) => {
         .data(Time_and_All_Data[0][0].station) // 從2017-01-01拿資料初始化node
         .enter()
         .append("circle")
-        .attr("id", (d) => d.station)
+        .attr("id", function (d) {
+            if(d.station === "BL板橋" || d.station === "Y板橋")
+                return "板橋"
+            return d.station
+        })
         .attr("class", function (d) {
             let All_color
             d.colors.forEach((color, index) => {
@@ -301,7 +322,6 @@ function update_node(source_data) {
 }
 
 function update_link(source_data) {
-    console.log("dsdssd")
     var min_link_flow = d3.min(source_data.route, d => {
         if (d.route_sum != 0) return d.route_sum
     })
