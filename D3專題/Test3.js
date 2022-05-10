@@ -344,7 +344,9 @@ function update_link(source_data) {
 }
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
-async function range_display(
+// args: 給定開始,結束兩日期 *注意: 開始日期要早於結束日期
+// func: 將圖從開始日期以天為單位增加直到結束日期 *注意: 還沒結束時就另外改變圖不知道會怎樣
+async function display_in_time_interval(
         y1 = 2017, m1 = 1, d1 = 1,
         y2 = 2021, m2 = 12, d2 = 31) {
     day_of_month = [-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
