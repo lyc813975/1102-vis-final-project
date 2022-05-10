@@ -184,15 +184,9 @@ d3.csv("路線.csv").then((data) => {
         //找車站，並且改值
         for (var sta = 0; sta < Station.length; sta++) {
             if (Time_and_All_Data[first][second].station[sta].station == d.station) {
-    
                 var sum_in = +d.in_sum
                 var sum_out = +d.out_sum
                 Time_and_All_Data[first][second].station[sta].Sum = sum_in + sum_out
-                if (year == 2018 && month == 1 && day == 1) {
-                    console.log(d.station, d.in_sum, d.out_sum)
-                    console.log(Time_and_All_Data[first][second].station[sta].Sum)
-                    console.log(sum_in + sum_out)
-                }
             }
         }
 
@@ -310,7 +304,6 @@ function update_date(year, month, day) {
 }
 
 function update_node(source_data) {
-    console.log(source_data.station)
     var min_node_throughput = d3.min(source_data.station, d => {
         if (d.Sum != 0) {
             return d.Sum
