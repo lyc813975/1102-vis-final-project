@@ -4,74 +4,16 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width = device-width , initial-scale = 1.0">
         <script src="https://d3js.org/d3.v7.min.js"></script>
+        <link rel="stylesheet" href="jquery/jquery-ui.min.css">
+        <script src="jquery/external/jquery/jquery.js"></script>
+        <script src="jquery/jquery-ui.min.js"></script>
     </head>
     <body>
         <div id="Title" style="text-align: center;font-size:50px;">Test 2</div>
         <div id="Canvas" style="background-color: antiquewhite; float: left;">
-            <span >
-                <select id="year_choose">
-                    <option class="Year" value="2017"selected="selected">2017</option>
-                    <option class="Year" value="2018">2018</option>
-                    <option class="Year" value="2019">2019</option>
-                    <option class="Year" value="2020">2020</option>
-                    <option class="Year" value="2021">2021</option>
-                </select>
-                <label style="font-size: 20px; ">年</label>
-                <select id="month_choose">
-                    <option class="Month" value="01"selected="selected">1</option>
-                    <option class="Month" value="02">2</option>
-                    <option class="Month" value="03">3</option>
-                    <option class="Month" value="04">4</option>
-                    <option class="Month" value="05">5</option>
-                    <option class="Month" value="06">6</option>
-                    <option class="Month" value="07">7</option>
-                    <option class="Month" value="08">8</option>
-                    <option class="Month" value="09">9</option>
-                    <option class="Month" value="10">10</option>
-                    <option class="Month" value="11">11</option>
-                    <option class="Month" value="12">12</option>
-                </select>
-                <label style="font-size: 20px; ">月</label>
-                <select id="day_choose">
-                    <option class="Day" value="01"selected="selected">1</option>
-                    <option class="Day" value="02">2</option>
-                    <option class="Day" value="03">3</option>
-                    <option class="Day" value="04">4</option>
-                    <option class="Day" value="05">5</option>
-                    <option class="Day" value="06">6</option>
-                    <option class="Day" value="07">7</option>
-                    <option class="Day" value="08">8</option>
-                    <option class="Day" value="09">9</option>
-                    <option class="Day" value="10">10</option>
-                    <option class="Day" value="11">11</option>
-                    <option class="Day" value="12">12</option>
-                    <option class="Day" value="13">13</option>
-                    <option class="Day" value="14">14</option>
-                    <option class="Day" value="15">15</option>
-                    <option class="Day" value="16">16</option>
-                    <option class="Day" value="17">17</option>
-                    <option class="Day" value="18">18</option>
-                    <option class="Day" value="19">19</option>
-                    <option class="Day" value="20">20</option>
-                    <option class="Day" value="21">21</option>
-                    <option class="Day" value="22">22</option>
-                    <option class="Day" value="23">23</option>
-                    <option class="Day" value="24">24</option>
-                    <option class="Day" value="25">25</option>
-                    <option class="Day" value="26">26</option>
-                    <option class="Day" value="27">27</option>
-                    <option class="Day" value="28">28</option>
-                    <option class="Day" value="29">29</option>
-                    <option class="Day" value="30">30</option>
-                    <option class="Day" value="31">31</option>
-                </select>
-                <label style="font-size: 20px; ">日</label>
-            
-                <div id="botton_check">
-                    <button type="button" id="submit_button">
-                        確認按鈕
-                    </button>
-                </div>
+            <span>
+                <label style="font-size: 20px; ">日期 :</label>
+                <input type="text" name="date" id="date" style="width:200px ; height : 30px ; font-size:30px; position: absolute;">
             </span>
         </div>
         <script src="Test3.js"></script>

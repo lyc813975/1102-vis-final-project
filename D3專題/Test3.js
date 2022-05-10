@@ -1,3 +1,16 @@
+//                                          年     月   日                       年      月    日
+$( "#date" ).datepicker({minDate : new Date(2017, 1 - 1, 1) , maxDate : new Date(2021, 12 - 1, 31) ,changeMonth : true
+ , changeYear : true});
+ $( "#date" ).datepicker("option" , "dateFormat" , "yy-mm-dd")
+let the_date = document.getElementById("date")
+$("#date").change(function(d){
+    var Year = +the_date.value.split("-")[0]
+    var Month = +the_date.value.split("-")[1]
+    var Day = +the_date.value.split("-")[2]
+    var first_index = (Year-2017) * 12 + Month - 1 
+    //       資料及   年月   日
+    update( Time_and_All_Data , first_index , Day - 1 )
+})
 //創建svg
 let svg = d3.select("#Canvas")
     .append("svg")
@@ -21,9 +34,6 @@ tooltip.append("text")
     .style("text-anchor" , "middle")
     .style("fill" , "white")
     .style("font-size" , "20px")
-
-//獲取提交按鈕
-let Submit_btn = document.getElementById("submit_button")
 //線性轉換
 let yScale = d3.scaleLinear()
     .domain([24.95,25.2])
@@ -69,7 +79,7 @@ d3.csv("路線.csv").then((data)=>{
         d.next_pos_x = the_next_station.x
         d.next_pos_y = the_next_station.y
     }) 
-    return d3.csv("out/all.csv")
+    return d3.csv("out/Link.csv")
 }).then((All_Path_Data)=>{
 //有Station{ station , index , Sum = 0 , x , y , colors}
 //有Every_Route{ route_color , start_station  , next_station  , start_pos_x , start_pos_y ,
@@ -135,7 +145,7 @@ d3.csv("路線.csv").then((data)=>{
         }
     })
     //這裡到時候return 整理好的Station資料
-    return d3.csv("單日同站進出/Total.csv")
+    return d3.csv("單日同站進出/Node.csv")
 }).then((All_Station_Data)=>{
     //console.log("Time_and_ALL =" , Time_and_All_Data)
     //console.log("2017 5月 Time_and_ALL =" , Time_and_All_Data[4])
@@ -298,22 +308,6 @@ d3.csv("路線.csv").then((data)=>{
             //將選取的轉為白色
             d3.select(this).style('fill','white')
         })
-    //這裡晚點做button的東東  我是想直接做日曆的啦，但是晚點，Button有現成的 ，日曆要學
-    Submit_btn.addEventListener("click",function(){
-        //獲取"天"跟"月"跟"年"的下拉選單
-        let Day_selector = document.getElementById("day_choose")
-        let Month_Selector = document.getElementById("month_choose")
-        let Year_Selector = document.getElementById("year_choose")
-        //獲得選取的value
-        var Day = +Day_selector.options[Day_selector.selectedIndex].value
-        var Month = +Month_Selector.options[Month_Selector.selectedIndex].value
-        var Year = +Year_Selector.options[Year_Selector.selectedIndex].value
-        //雖說獲取了  但我還沒丟進去update 
-        console.log("Year" , Year , " Month" , Month , " Day" , Day)
-        var first_index = (Year-2017) * 12 + Month - 1 
-        //       資料及   年月   日
-        update( Time_and_All_Data , first_index , Day - 1 )
-    })
 })
 
 //實驗1  成功  只是做為return一個資料讓then接收
