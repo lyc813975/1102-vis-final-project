@@ -212,14 +212,6 @@ d3.csv("路線.csv").then((data) => {
                 var sum_in = +d.in_sum
                 var sum_out = +d.out_sum
                 Time_and_All_Data[first][second].station[sta].Sum = sum_in + sum_out
-<<<<<<< Updated upstream
-=======
-                if (year == 2018 && month == 1 && day == 1) {
-                   // console.log(d.station, d.in_sum, d.out_sum)
-                   // console.log(Time_and_All_Data[first][second].station[sta].Sum)
-                    //console.log(sum_in + sum_out)
-                }
->>>>>>> Stashed changes
             }
         }
 
