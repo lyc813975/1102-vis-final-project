@@ -88,6 +88,9 @@ let xScale = d3.scaleLinear()
 var Every_Route = []
 let Time_and_All_Data = []
 var Station = []
+var Station_Test = []
+var start_time = new Date().getTime()
+var end_time = 0
 //讀取路線資料ˊ ˇ ˋ  
 d3.csv("路線.csv").then((data) => {
     let Route_data = data.map((d) => {
@@ -101,8 +104,7 @@ d3.csv("路線.csv").then((data) => {
             start = d.Route_station[i]
             next = d.Route_station[i + 1]
             Every_Route.push({
-                route_color: d.Route_color, start_station: start, next_station: next,
-                start_pos_x: 0, start_pos_y: 0, next_pos_x: 0, next_pos_y: 0, route_sum: 0
+                route_color: d.Route_color, start_station: start, next_station: next , route_sum: 0
             })
             count = count + 1;
         }
@@ -114,16 +116,9 @@ d3.csv("路線.csv").then((data) => {
     Station_Data.forEach((d) => {
         let color = d.station_color.split("-")
         Station.push({ station: d.station, index: +d.index, Sum: +0, x: +d.x, y: +d.y, colors: color })
+        Station_Test.push({station: d.station, Sum: +0})    
     })
     //這邊去更動所有路線上的xy值
-    Every_Route.forEach(d => {
-        let the_start_station = Station.find(stations => stations.station == d.start_station)
-        let the_next_station = Station.find(stations => stations.station == d.next_station)
-        d.start_pos_x = the_start_station.x
-        d.start_pos_y = the_start_station.y
-        d.next_pos_x = the_next_station.x
-        d.next_pos_y = the_next_station.y
-    })
     return d3.csv("out/Link.csv")
 }).then((All_Path_Data) => {
     //有Station{ station , index , Sum = 0 , x , y , colors}
@@ -148,7 +143,7 @@ d3.csv("路線.csv").then((data) => {
 
                 //反正之後都要  先放到時候直接取代就好(station)
                 //console.log("Every =" , Every_Route)
-                Temp_Data.push({ station: JSON.parse(JSON.stringify(Station)), route: JSON.parse(JSON.stringify(Every_Route)) })
+                Temp_Data.push({ station: JSON.parse(JSON.stringify(Station_Test)) , route: JSON.parse(JSON.stringify(Every_Route)) })
             }
             D = Day
             //Temp_Route.splice(0,Temp_Route.length)
@@ -196,7 +191,7 @@ d3.csv("路線.csv").then((data) => {
     //console.log("2017 5月 Time_and_ALL =" , Time_and_All_Data[4])
     //這裡可能要做處理車站的資料
     //Station{ station , index , Sum = 0 , x , y , colors}目前
-    //Time_and_All_Data[年月][日].station  { station , index , Sum = 0 , x , y , colors}    //colors可能有多個
+    //Time_and_All_Data[年月][日].station  { station , index , Sum = 0 }    //colors可能有多個
     //console.log("All_Station_Data =" , All_Station_Data)
     All_Station_Data.forEach((d) => {
         //給予日期
@@ -220,18 +215,17 @@ d3.csv("路線.csv").then((data) => {
     return undefined
 }).then(() => {
     //console.log("Time_and_ALL =" , Time_and_All_Data)
-    //Time_and_All_Data . route =>{ route_color , start_station  , next_station  , start_pos_x , start_pos_y ,
-    //                               next_pos_x , next_pos_y , route_sum}
+    //Time_and_All_Data . route =>{ route_color , start_station  , next_station , route_sum}
     svg.append("g").attr("id", "Line")
         .selectAll("line")
         .data(Time_and_All_Data[0][0].route) // 從2017-01-01拿資料初始link
         .enter()
         .append("line")
         .attr("class", (d) => d.route_color)
-        .attr("x1", (d) => xScale(d.start_pos_x))
-        .attr("y1", (d) => yScale(d.start_pos_y))
-        .attr("x2", (d) => xScale(d.next_pos_x))
-        .attr("y2", (d) => yScale(d.next_pos_y))
+        .attr("x1", (d) => xScale(Check_Station_Pos_x(d.start_station)))
+        .attr("y1", (d) => yScale(Check_Station_Pos_y(d.start_station)))
+        .attr("x2", (d) => xScale(Check_Station_Pos_x(d.next_station)))
+        .attr("y2", (d) => yScale(Check_Station_Pos_y(d.next_station)))
         .style("stroke-width", 0) // 先給空值避免顯示錯誤
         .style("stroke", (d) => d.route_color)
         .on("click", function (d) {
@@ -260,7 +254,7 @@ d3.csv("路線.csv").then((data) => {
         })
         .attr("class", function (d) {
             let All_color
-            d.colors.forEach((color, index) => {
+            Check_Station_color(d.station).forEach((color, index) => {
                 if (index === 0)
                     All_color = color
                 else
@@ -268,10 +262,10 @@ d3.csv("路線.csv").then((data) => {
             })
             return All_color
         })
-        .attr("cx", (d) => xScale(d.x))
-        .attr("cy", (d) => yScale(d.y))
+        .attr("cx", (d) => xScale(Check_Station_Pos_x(d.station)))
+        .attr("cy", (d) => yScale(Check_Station_Pos_y(d.station)))
         .style("r", 0) // 先給空值避免顯示錯誤
-        .style("fill", (d) => d.colors[0])
+        .style("fill", (d) => Check_Station_color(d.station)[0])
         .style("stroke", "black")
         .on("click", function (d) {
             //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
@@ -282,7 +276,7 @@ d3.csv("路線.csv").then((data) => {
             })
             //這能將所有circle轉為原本的顏色
             d3.selectAll('circle').style('fill', function (data) {
-                return data.colors[0]
+                return Check_Station_color(data.station)[0]
             })
             //將選取的轉為白色
             d3.select(this).style('fill', 'white')
@@ -295,8 +289,27 @@ d3.csv("路線.csv").then((data) => {
             tooltip.style("display", "none")
         })
         update_network(2017, 1, 1)
+        end_time = new Date().getTime()
+        console.log("Time = " , end_time - start_time)
 })
 
+
+function Check_Station_Pos_x(Station_Name){
+    let return_station = Station.find((sta)=>sta.station === Station_Name)
+    return return_station.x
+}
+function Check_Station_Pos_y(Station_Name){
+    let return_station = Station.find((sta)=>sta.station === Station_Name)
+    return return_station.y
+}
+function Check_Station_color(Station_Name){
+    let return_station = Station.find((sta)=>sta.station === Station_Name)
+    return return_station.colors
+}
+function Check_Station_index(Station_Name){
+    let return_station = Station.find((sta)=>sta.station === Station_Name)
+    return return_station.index
+}
 //實驗1  成功  只是做為return一個資料讓then接收
 //順便當作寫Promise ?
 function Exp1(Exp_Data) {
