@@ -55,7 +55,7 @@ let svg = d3.select("#Canvas")
     .append("svg")
     .attr('width', 2000)
     .attr('height', 2000)
-let date_box = svg.append("text").attr("x", 300).attr("y", 500)
+let date_box = svg.append("text").attr("x", 900).attr("y",100).style("font-size" , "50px")
 //創建tooltips  的svg
 let tooltip = d3.select("#Canvas")
     .append("svg")
@@ -80,10 +80,13 @@ tooltip.append("text")
 //線性轉換
 let yScale = d3.scaleLinear()
     .domain([24.95, 25.17])
-    .range([1000, 0])
+    .range([1250, 50])
 let xScale = d3.scaleLinear()
     .domain([121.39, 121.62])
-    .range([0, 1500])
+    .range([0, 1400])
+let Bar_yScale = d3.scaleLinear()
+    .domain([0,10])
+    .range([150,1000])
 //圓半徑 跟  線寬度  可能要再想想，  因為根據Range的不同，可能上下限不同
 var Every_Route = []
 let Time_and_All_Data = []
@@ -237,7 +240,7 @@ d3.csv("路線.csv").then((data) => {
             })
             //這能將所有circle轉為原本的顏色
             d3.selectAll('circle').style('fill', function (data) {
-                return data.colors[0]
+                return Check_Station_color(data.station)[0]
             })
             //將選取的轉為白色
             d3.select(this).style('stroke', 'white')
@@ -267,6 +270,7 @@ d3.csv("路線.csv").then((data) => {
         .style("r", 0) // 先給空值避免顯示錯誤
         .style("fill", (d) => Check_Station_color(d.station)[0])
         .style("stroke", "black")
+        .style("opacity" , 0.8)
         .on("click", function (d) {
             //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
             console.log("d = ", d.srcElement.__data__)
@@ -288,6 +292,43 @@ d3.csv("路線.csv").then((data) => {
         .on("mouseleave", (d) => {
             tooltip.style("display", "none")
         })
+    // let Bar_xScale = d3.scaleLinear()
+    //     .domain([])
+    //     .range([1400,1900])
+    // let Bar_yScale = d3.scaleLinear()
+    //     .domain([0,10])
+    //     .range([50,1000])
+        svg.append("g").attr("class" , "Top_Ten_Bar")
+            .selectAll("rect")
+            .data(Time_and_All_Data[0][0].station)
+            .enter().filter(function(d,i){
+                return i < 10
+            })
+            .append("rect")
+            .attr("x" , 1500)
+            .attr("y" , (d,i)=>Bar_yScale(i))
+            .attr("width" , 250)
+            .attr("height" , 50)
+        svg.append("g").attr("class","Top_Ten_Text")
+            .selectAll("text")
+            .data(Time_and_All_Data[0][0].station)
+            .enter().filter(function(d,i){
+                return i < 10
+            })
+            .append("text")
+            .attr("x" , 1500)
+            .attr("y" , (d,i)=>Bar_yScale(i)-5)
+            .attr("font-size" , "30px")
+        //let xAxis = d3.axisBottom(Bar_xScale);
+        let yAxis = d3.axisLeft(Bar_yScale);
+            //svg.append("g")
+            //  .attr("class" , "axis")
+            //    .attr("transform" , "translate(50,430)")
+            //    .call(xAxis)
+            svg.append("g")
+                .attr("class" , "axis")
+                .attr("transform" , "translate(1500,-60)")
+                .call(yAxis)
         update_network(2017, 1, 1)
         end_time = new Date().getTime()
         console.log("Time = " , end_time - start_time)
@@ -334,6 +375,7 @@ function update_network(year, month, day) {
     update_date(year, month, day)
     update_node(Time_and_All_Data[i][j])
     update_link(Time_and_All_Data[i][j])
+    update_bar(Time_and_All_Data[i][j].station)
 }
 
 function update_date(year, month, day) {
@@ -350,7 +392,7 @@ function update_node(source_data) {
     var max_node_throughput = d3.max(source_data.station, d => d.Sum)
     var radius_scale = d3.scaleLinear()
         .domain([min_node_throughput, max_node_throughput])
-        .range([5, 15])
+        .range([5, 20])
     svg.selectAll("circle")
         .data(source_data.station)
         .transition().duration(500)
@@ -367,13 +409,35 @@ function update_link(source_data) {
     var max_link_flow = d3.max(source_data.route, d => d.route_sum)
     var width_scale = d3.scaleLinear()
         .domain([min_link_flow, max_link_flow])
-        .range([2, 10])
+        .range([2, 15])
     svg.selectAll("line")
         .data(source_data.route)
         .transition().duration(500)
         .style("stroke-width", (d) => (d.route_sum == 0) ? 0 : width_scale(d.route_sum))
 }
-
+function update_bar(source_data){
+    let Top_Ten = source_data
+    //d3.sort(Top_Ten , (a,b) => d3.descending(a.Sum , b.Sum))
+    Top_Ten.sort((a,b) => d3.descending(a.Sum , b.Sum))
+    //因為只要前十名 所以只看前十個
+    let Bar_Width_Scale = d3.scaleLinear()
+        .domain([Top_Ten[9].Sum,Top_Ten[0].Sum])
+        .range([100,300])
+    svg.selectAll("rect")
+        .data(Top_Ten).transition().duration(500)
+        .attr("width" , (d)=>{
+            return Bar_Width_Scale(d.Sum)
+        })
+        .style("fill",(d)=>Check_Station_color(d.station)[0])
+    update_Text(Top_Ten)
+}
+function update_Text(Source){
+    svg.select(".Top_Ten_Text").selectAll("text")
+        .data(Source)
+        .text(function(d){
+            return d.station + "  " + d.Sum.toString() + "人"
+        })
+}
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 // args: 給定開始,結束兩日期 *注意: 開始日期要早於結束日期
 // func: 將圖從開始日期以天為單位增加直到結束日期 *注意: 還沒結束時就另外改變圖不知道會怎樣

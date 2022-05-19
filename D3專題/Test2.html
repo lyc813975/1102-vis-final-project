@@ -11,20 +11,22 @@
     <body>
         <div id="Title" style="text-align: center;font-size:50px;">Test 2</div>
         <div id="Canvas" style="background-color: antiquewhite; float: left;">
-            <span>
-                <label style="font-size: 20px; ">日期 (From):</label>
-                <input type="text" name="date" id="date" style="width:200px ; height : 30px ; font-size:30px; position: absolute;">  
-            </span>
-                <br/><br/>
-            <span>
-                <label style="font-size: 20px; ">日期 (To):</label>
-                <input type="text" name="date2" id="date2" style="width:200px ; height : 30px ; font-size:30px; position: absolute;">
-            </span>
-            <span>
-                <br/><br/>
-                <label style="font-size: 20px; ">搜尋車站</label>
-                <input type="text" name="Find_Station" id="Find_Station" style="width:200px ;font-size:30px;position: absolute;">
-            </span>
+            <div style="display:flex">
+                <span style="position:relative; ">
+                    <label style="font-size: 20px; ">日期 (From):</label>
+                    <input type="text" name="date" id="date" style="width:200px ; height : 30px ; font-size:30px; position: absolute;">  
+                </span>
+                    <br/><br/>
+                <span style="position:relative; left: 250px;">
+                    <label style="font-size: 20px; ">日期 (To):</label>
+                    <input type="text" name="date2" id="date2" style="width:200px ; height : 30px ; font-size:30px; position: absolute;">
+                </span>
+                <span style="position:relative; left: 500px;">
+                    
+                    <label style="font-size: 20px; ">搜尋車站</label>
+                    <input type="text" name="Find_Station" id="Find_Station" style="width:200px ;font-size:30px;position: absolute;">
+                </span>
+            </div>
         </div>
         <script src="Test3.js"></script>
     </body>
