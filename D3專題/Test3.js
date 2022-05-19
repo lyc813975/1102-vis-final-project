@@ -1,31 +1,3 @@
-// 建立日曆 選擇要展現的圖表
-//                                          年     月   日                       年      月    日
-$("#date").datepicker({
-    minDate: new Date(2017, 1 - 1, 1), maxDate: new Date(2021, 12 - 1, 31), changeMonth: true
-    , changeYear: true , onClose:function(selectedDate){
-        if(selectedDate != ""){
-            $( "#date2" ).datepicker( "option", "minDate", selectedDate );
-        }else{
-            $( "#date2" ).datepicker( "option", "minDate", new Date(2017, 1 - 1, 1) );
-        }
-            
-    }
-});
-
-$("#date2").datepicker({
-    minDate: new Date(2017, 1 - 1, 1), maxDate: new Date(2021, 12 - 1, 31), changeMonth: true
-    , changeYear: true , onClose:function(selectedDate){
-        if(selectedDate != ""){
-            $( "#date" ).datepicker( "option", "maxDate", selectedDate );
-        }else{
-            $( "#date" ).datepicker( "option", "maxDate", new Date(2021, 12 - 1, 31) );
-        }
-        
-    }
-});
-
-$("#date2").datepicker("option", "dateFormat", "yy-mm-dd")
-$("#date").datepicker("option", "dateFormat", "yy-mm-dd")
 
 let the_date = document.getElementById("date")
 $("#date").change(function (d) {
@@ -67,9 +39,9 @@ let tooltip = d3.select("#Canvas")
 d3.select("#Canvas").on("mousemove", function (e) {
     tooltip.style("left", e.layerX + 20).style("top", e.layerY + 35)
 })
-d3.select("#Canvas").on("click", function () {
-    svg.selectAll("line").transition().duration(500).style("opacity" , 1)
-    svg.selectAll("circle").transition().duration(500).style("opacity" , 1)
+d3.select("#Canvas").on("mousedown", function () {
+    svg.selectAll("line").style("opacity" , 1)
+    svg.selectAll("circle").style("opacity" , 1)
 })
 tooltip.append("text")
     .attr("x", "50%")
@@ -307,8 +279,18 @@ d3.csv("路線.csv").then((data) => {
             .append("rect")
             .attr("x" , 1500)
             .attr("y" , (d,i)=>Bar_yScale(i))
-            .attr("width" , 250)
+            .attr("width" , 0)
             .attr("height" , 50)
+            .on("click" , (d)=>{
+                var sta_name
+                if(d.srcElement.__data__.station === "BL板橋" || d.srcElement.__data__.station === "Y板橋")
+                    sta_name = "#板橋"
+                else
+                    sta_name = "#" + d.srcElement.__data__.station
+                svg.selectAll("line").style("opacity" , 0.3)
+                svg.selectAll("circle").style("opacity" , 0.3)
+                svg.select(sta_name).style("opacity" , 1)
+            })
         svg.append("g").attr("class","Top_Ten_Text")
             .selectAll("text")
             .data(Time_and_All_Data[0][0].station)
