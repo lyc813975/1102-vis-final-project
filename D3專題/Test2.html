@@ -27,7 +27,35 @@
                     <input type="text" name="Find_Station" id="Find_Station" style="width:200px ;font-size:30px;position: absolute;">
                 </span>
             </div>
+            <span style="position: relative;">
+                <label style="font-size: 20px; ">進階選項</label>
+                <input type="checkbox" name="hidden_Option" id="hidden_Option">
+            </span>
+            <div id="hidden_Block" style="display: none;">
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">圓半徑(Max)</label>
+                    <input type="range" name="Max_Circle_Width" id="Max_Circle_Width" min="15" max="50" value="20" step="1">
+                    <label id="Max_Circle_Width_Text"style="font-size: 20px;">20</label>
+                </span>
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">圓半徑(Min)</label>
+                    <input type="range" name="Min_Circle_Width" id="Min_Circle_Width" min="1" max="15" value="10" step="1">
+                    <label id="Min_Circle_Width_Text" style="font-size: 20px; ">10</label>
+                </span>
+                <br/>
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">線寬度(Max)</label>
+                    <input type="range" name="Max_Line_Width" id="Max_Line_Width" min="10" max="30" value="15" step="1">
+                    <label id="Max_Line_Width_Text" style="font-size: 20px; ">15</label>  
+                </span>
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">線寬度(Min)</label>
+                    <input type="range" name="Min_Line_Width" id="Min_Line_Width" min="1" max="10" value="2" step="1">
+                    <label id="Min_Line_Width_Text" style="font-size: 20px; ">2</label>  
+                </span>
+            </div>
         </div>
+        <script src="advanced_Option.js"></script>
         <script src="Test3.js"></script>
     </body>
 </html>
