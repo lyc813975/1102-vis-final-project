@@ -1,3 +1,53 @@
+class Node {
+    constructor(data, cost) {
+        this.dest = data;
+        this.cost = cost;
+        this.next = null;
+    }
+}
+
+class LinkedList {
+    constructor() {
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+    append(data, cost) {
+        const newNode = new Node(data, cost);
+        if (this.isEmpty()) {
+            this.head = newNode;
+            this.tail = newNode;
+        } else {
+            this.tail.next = newNode;
+            this.tail = newNode;
+        }
+        this.length += 1;
+    }
+    
+    getCost(dest) {
+        let currNode = this.head;
+        while (currNode.dest) {
+            if (currNode.dest === dest) return currNode.cost
+            currNode = currNode.next;
+        }
+        return -1
+    }
+
+    isEmpty() {
+        return this.length === 0;
+    }
+
+    clear() {
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+    size() {
+        return this.length;
+    }
+}
 
 let the_date = document.getElementById("date")
 $("#date").change(function (d) {
@@ -52,10 +102,10 @@ tooltip.append("text")
 //線性轉換
 let yScale = d3.scaleLinear()
     .domain([24.95, 25.17])
-    .range([1250, 50])
+    .range([800, 20])
 let xScale = d3.scaleLinear()
     .domain([121.39, 121.62])
-    .range([0, 1400])
+    .range([0, 1000])
 let Bar_yScale = d3.scaleLinear()
     .domain([0,10])
     .range([150,1000])
@@ -65,14 +115,18 @@ let Time_and_All_Data = []
 var Station = []
 var Station_Test = []
 var start_time = new Date().getTime()
+var path_table = new Array(108)
+for (var i = 0; i < path_table.length; ++i) path_table[i] = Array(108).fill("")
+var path_table_2020 = new Array(119)
+for (var i = 0; i < path_table_2020.length; ++i) path_table_2020[i] = Array(119).fill("")
+var riding_cost = Array(119) // 不能用fill 會指向同個位置
 var end_time = 0
-//讀取路線資料ˊ ˇ ˋ  
+    //讀取路線資料ˊ ˇ ˋ
 d3.csv("路線.csv").then((data) => {
     let Route_data = data.map((d) => {
         route_path = d.path.split("_")
         return { Route_color: d.color, Route_station: route_path }
     })
-
     var count = 0
     Route_data.forEach((d) => {
         for (var i = 0; i < d.Route_station.length - 1; i++) {
@@ -94,6 +148,22 @@ d3.csv("路線.csv").then((data) => {
         Station_Test.push({station: d.station, Sum: +0})    
     })
     //這邊去更動所有路線上的xy值
+    return d3.csv("path.csv")
+}).then((path_data) => {
+    for (d of path_data) path_table[+d.src][d.dest] = d.route
+    return d3.csv("path-2020.csv")
+}).then((path_2020_data) => {
+    for (d of path_2020_data) path_table_2020[+d.src][+d.dest] = d.route
+    return d3.csv("riding time.csv")
+}).then((riding_time_data) => {
+    for (d of riding_time_data) {
+        if (riding_cost[+d.from] === undefined)
+            riding_cost[+d.from] = new LinkedList() 
+        riding_cost[+d.from].append(+d.to, +d.cost)
+        if (riding_cost[+d.to] === undefined)
+            riding_cost[+d.to] = new LinkedList() 
+        riding_cost[+d.to].append(+d.from, +d.cost)
+    }
     return d3.csv("out/Link.csv")
 }).then((All_Path_Data) => {
     //有Station{ station , index , Sum = 0 , x , y , colors}
@@ -193,7 +263,7 @@ d3.csv("路線.csv").then((data) => {
     //Time_and_All_Data . route =>{ route_color , start_station  , next_station , route_sum}
     svg.append("g").attr("id", "Line")
         .selectAll("line")
-        .data(Time_and_All_Data[0][0].route) // 從2017-01-01拿資料初始link
+        .data(Every_Route) // 從2017-01-01拿資料初始link
         .enter()
         .append("line")
         .attr("class", (d) => d.route_color)
@@ -219,7 +289,7 @@ d3.csv("路線.csv").then((data) => {
         })
     svg.append("g").attr("id", "Circle")
         .selectAll("circle")
-        .data(Time_and_All_Data[0][0].station) // 從2017-01-01拿資料初始化node
+        .data(Station) // 從2017-01-01拿資料初始化node
         .enter()
         .append("circle")
         .attr("id", function (d) {
@@ -348,7 +418,6 @@ function get_first_index(year, month, day) { return (year - 2017) * 12 + month -
 // func: 回傳Time_and_All_Data對應的第二個索引
 function get_second_index(year, month, day) { return day - 1 }
 
-// 這邊的update_nextwork是先算當日的   一個range之後再想ˊ ˇ ˋ  要不然怕range沒做出來 浪費時間
 // args: 年月日
 // func: 根據給定日期更新nextwork
 function update_network(year, month, day) {
@@ -374,7 +443,7 @@ function update_node(source_data) {
     var max_node_throughput = d3.max(source_data.station, d => d.Sum)
     var radius_scale = d3.scaleLinear()
         .domain([min_node_throughput, max_node_throughput])
-        .range([5, 20])
+        .range([4, 8])
     svg.selectAll("circle")
         .data(source_data.station)
         .transition().duration(500)
@@ -391,12 +460,13 @@ function update_link(source_data) {
     var max_link_flow = d3.max(source_data.route, d => d.route_sum)
     var width_scale = d3.scaleLinear()
         .domain([min_link_flow, max_link_flow])
-        .range([2, 15])
+        .range([2, 8])
     svg.selectAll("line")
         .data(source_data.route)
         .transition().duration(500)
         .style("stroke-width", (d) => (d.route_sum == 0) ? 0 : width_scale(d.route_sum))
 }
+
 function update_bar(source_data){
     let Top_Ten = source_data
     //d3.sort(Top_Ten , (a,b) => d3.descending(a.Sum , b.Sum))
@@ -413,6 +483,7 @@ function update_bar(source_data){
         .style("fill",(d)=>Check_Station_color(d.station)[0])
     update_Text(Top_Ten)
 }
+
 function update_Text(Source){
     svg.select(".Top_Ten_Text").selectAll("text")
         .data(Source)
@@ -420,13 +491,14 @@ function update_Text(Source){
             return d.station + "  " + d.Sum.toString() + "人"
         })
 }
+
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 // args: 給定開始,結束兩日期 *注意: 開始日期要早於結束日期
 // func: 將圖從開始日期以天為單位增加直到結束日期 *注意: 還沒結束時就另外改變圖不知道會怎樣
 async function display_in_time_interval(
         y1 = 2017, m1 = 1, d1 = 1,
         y2 = 2021, m2 = 12, d2 = 31) {
-    day_of_month = [-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    var day_of_month = [-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     for (year = y1; year <= y2; ++year) {
         var min_month = (year == y1) ? m1 : 1
         var max_month = (year == y2) ? m2 : 12
@@ -445,4 +517,71 @@ async function display_in_time_interval(
             }
         }
     }
+}
+
+function generate_OD_pair(src=81, dest=98, year=2020) {
+    var riding_time = []
+    var cost = 0
+    var path = (year < 2020) ? path_table[src][dest] : path_table_2020[src][dest]
+    var nodes = path.split(',')
+    var now_line = is_the_same_line(Number(nodes[0]), Number(nodes[1]))
+    // 搭乘和轉乘時間
+    for (var i = 0; i < nodes.length - 1; ++i) {
+        var next_line = is_the_same_line(Number(nodes[i]), Number(nodes[i + 1]))
+        if (now_line != next_line) {
+            if (now_line === undefined) {
+                riding_time.push(["transferring", 7])
+            } else {
+                riding_time.push(["transferring", 2])
+                riding_time.push([now_line, cost])
+            }
+            cost = 0
+        }
+        cost += riding_cost[Number(nodes[i])].getCost(Number(nodes[i + 1]))
+        now_line = next_line
+    }
+    riding_time.push([now_line, cost])
+
+    var total_time = new Array(24)
+    var waiting_time = {
+        'brown': [-1,-1,-1,-1,-1,-1,3,3,3,3,5,5,5,5,5,5,5,3,3,3,5,5,5,5],
+        'red': [-1,-1,-1,-1,-1,-1,3,3,3,5,5,5,5,4,5,5,3,3,3,5,4,5,5,8],
+        'green': [-1,-1,-1,-1,-1,-1,3,2,2,3,4,3,4,4,3,4,3,3,2,2,3,3,4,6],
+        'orange': [-1,-1,-1,-1,-1,-1,4,3,3,4,5,4,5,5,5,5,3,3,3,5,4,5,5,6],
+        'blue': [-1,-1,-1,-1,-1,-1,3,3,3,3,4,5,5,5,4,4,4,3,3,3,4,4,5,4],
+        'yellow': [-1,-1,-1,-1,-1,-1,3,3,3,3,5,5,5,5,5,5,5,3,3,3,5,5,5,5]
+    }
+
+    // 加入等車時間
+    for (var i = 0; i < total_time.length; ++i) {
+        total_time[i] = []
+        if (i < 6 || i == 23) continue
+        for (const [type, cost] of riding_time) {
+            if (type !== "transferring") total_time[i].push(["waiting", waiting_time[type][i]])
+            total_time[i].push([type, cost])
+        }
+    }
+    return total_time
+}
+
+function is_the_same_line(station1, station2) {
+    var line1 = get_line_of_station(station1)
+    var line2 = get_line_of_station(station2)
+    var intersection = line1.filter(element => line2.includes(element))
+    return intersection[0]
+}
+
+function get_line_of_station(station) {
+    var lines = {
+        'brown': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+        'red': [24, 25, 26, 8, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+        'green': [51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 29, 61, 62, 63, 32, 64, 10, 65, 66, 67],
+        'orange': [68, 69, 70, 71, 60, 28, 72, 64, 73, 74, 34, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89],
+        'blue': [90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 62, 31, 100, 72, 9, 101, 102, 103, 104, 105, 106, 107, 23],
+        'yellow': [55, 108, 109, 110, 69, 111, 112, 113, 114, 115, 116, 80, 117, 118]
+    }
+    var res = []
+    for (const [key, value] of Object.entries(lines))
+        if (value.find(element => element == station) !== undefined) res.push(key)
+    return res
 }
