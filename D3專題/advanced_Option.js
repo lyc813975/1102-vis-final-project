@@ -31,3 +31,48 @@ $("#hidden_Option").change(function(){
         $("#hidden_Block").hide()
     }
 })
+//進階選項裡的調整
+$("#Max_Circle_Width").change(function(){
+    $("#Max_Circle_Width_Text").html($("#Max_Circle_Width").val())
+    if(the_date.value != ""){
+        var Year = +the_date.value.split("-")[0]
+        var Month = +the_date.value.split("-")[1]
+        var Day = +the_date.value.split("-")[2]
+        update_network(Year,Month,Day)
+    }else{
+        update_network(2017,1,1)
+    }
+})
+$("#Min_Circle_Width").change(function(){
+    $("#Min_Circle_Width_Text").html($("#Min_Circle_Width").val())
+    if(the_date.value != ""){
+        var Year = +the_date.value.split("-")[0]
+        var Month = +the_date.value.split("-")[1]
+        var Day = +the_date.value.split("-")[2]
+        update_network(Year,Month,Day)
+    }else{
+        update_network(2017,1,1)
+    }
+})
+$("#Max_Line_Width").change(function(){
+    $("#Max_Line_Width_Text").html($("#Max_Line_Width").val())
+    if(the_date.value != ""){
+        var Year = +the_date.value.split("-")[0]
+        var Month = +the_date.value.split("-")[1]
+        var Day = +the_date.value.split("-")[2]
+        update_network(Year,Month,Day)
+    }else{
+        update_network(2017,1,1)
+    }
+})
+$("#Min_Line_Width").change(function(){
+    $("#Min_Line_Width_Text").html($("#Min_Line_Width").val())
+    if(the_date.value != ""){
+        var Year = +the_date.value.split("-")[0]
+        var Month = +the_date.value.split("-")[1]
+        var Day = +the_date.value.split("-")[2]
+        update_network(Year,Month,Day)
+    }else{
+        update_network(2017,1,1)
+    }
+})
