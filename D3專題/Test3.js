@@ -59,25 +59,15 @@ $("#date").change(function (d) {
         update_network(Year, Month, Day)
     }
 })
-let Find_Station_System = document.getElementById("Find_Station")
+
 let Name = []
-//尋車站機制
-Find_Station_System.addEventListener("input",function(d){
-    let ID_Name = "#" + d.data
-    let Station_Be_Find = svg.selectAll(ID_Name)
-    if(!Station_Be_Find.empty()){
-        console.log("Station = " , Station_Be_Find)
-        svg.selectAll("line").style("opacity" , 0.3)
-        svg.selectAll("circle").style("opacity" , 0.3)
-        Station_Be_Find.style("opacity" , 1)
-    }
-})
+
 //創建svg
 let svg = d3.select("#Canvas")
     .append("svg")
     .attr('width', 2000)
     .attr('height', 2000)
-let date_box = svg.append("text").attr("x", 900).attr("y",100).style("font-size" , "50px")
+let date_box = svg.append("text").attr("x", 800).attr("y",100).style("font-size" , "50px")
 //創建tooltips  的svg
 let tooltip = d3.select("#Canvas")
     .append("svg")
@@ -102,7 +92,7 @@ tooltip.append("text")
 //線性轉換
 let yScale = d3.scaleLinear()
     .domain([24.95, 25.17])
-    .range([800, 20])
+    .range([800, 100])
 let xScale = d3.scaleLinear()
     .domain([121.39, 121.62])
     .range([0, 1000])

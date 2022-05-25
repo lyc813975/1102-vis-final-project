@@ -76,3 +76,20 @@ $("#Min_Line_Width").change(function(){
         update_network(2017,1,1)
     }
 })
+$("#Find_Color").change(function(){
+    $("#Find_Station").empty();
+    Test_Color = "." + $("#Find_Color option:selected").val()
+    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    d3.selectAll(Test_Color).style("opacity" , 1)
+    Test_Circle = "#Circle " + Test_Color
+    $(Test_Circle).each(function(i,d){
+        $("#Find_Station").append($('<option></option>').val(d.id).text(d.id))
+    })
+})
+$("#Find_Station").change(function(){
+    Test_Color = "#" + $("#Find_Station option:selected").val()
+    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    d3.selectAll(Test_Color).style("opacity" , 1)
+})
