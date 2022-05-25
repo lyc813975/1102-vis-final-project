@@ -443,7 +443,7 @@ function update_node(source_data) {
     var max_node_throughput = d3.max(source_data.station, d => d.Sum)
     var radius_scale = d3.scaleLinear()
         .domain([min_node_throughput, max_node_throughput])
-        .range([4, 8])
+        .range([$("#Min_Circle_Width").val(), $("#Max_Circle_Width").val()])
     svg.selectAll("circle")
         .data(source_data.station)
         .transition().duration(500)
@@ -460,7 +460,7 @@ function update_link(source_data) {
     var max_link_flow = d3.max(source_data.route, d => d.route_sum)
     var width_scale = d3.scaleLinear()
         .domain([min_link_flow, max_link_flow])
-        .range([2, 8])
+        .range([$("#Min_Line_Width").val(), $("#Max_Line_Width").val()])
     svg.selectAll("line")
         .data(source_data.route)
         .transition().duration(500)
@@ -468,7 +468,7 @@ function update_link(source_data) {
 }
 
 function update_bar(source_data){
-    let Top_Ten = source_data
+    let Top_Ten = JSON.parse(JSON.stringify(source_data))
     //d3.sort(Top_Ten , (a,b) => d3.descending(a.Sum , b.Sum))
     Top_Ten.sort((a,b) => d3.descending(a.Sum , b.Sum))
     //因為只要前十名 所以只看前十個
