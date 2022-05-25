@@ -10,7 +10,7 @@
     </head>
     <body>
         <div id="Title" style="text-align: center;font-size:50px;">Test 2</div>
-        <div id="Canvas" style="background-color: gray; float: left;">
+        <div id="cnavas-all" style="float: left;">
             <div style="display:flex">
                 <span style="position:relative; ">
                     <label style="font-size: 20px; ">日期 (From):</label>
@@ -55,8 +55,26 @@
                     <label id="Min_Line_Width_Text" style="font-size: 20px; ">2</label>  
                 </span>
             </div>
+            <div id="svg_sdj"></div>
+            <div id="Canvas"></div>
         </div>
+        <script src="contour.js"></script>
         <script src="advanced_Option.js"></script>
         <script src="Test3.js"></script>
     </body>
 </html>
+
+<style>
+    body{
+        background-color: gray;
+    }
+    #svg_sdj{
+        margin-top: 1000;
+        position: absolute;
+        z-index: -1;
+    } 
+    
+    #cavas-all{
+        position:relative;
+    }
+</style>
