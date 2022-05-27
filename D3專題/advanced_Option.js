@@ -4,6 +4,11 @@ $("#date").datepicker({
     minDate: new Date(2017, 1 - 1, 1), maxDate: new Date(2021, 12 - 1, 31), changeMonth: true
     , changeYear: true , onClose:function(selectedDate){
         if(selectedDate != ""){
+            year = +selectedDate.split("-")[0]
+            if(year>=2020) 
+                $("#Find_Color").append($('<option></option>').val("yellow").text("yellow"))
+            else 
+                $("#Find_Color option[value=yellow]" ).remove()
             $( "#date2" ).datepicker( "option", "minDate", selectedDate );
         }else{
             $( "#date2" ).datepicker( "option", "minDate", new Date(2017, 1 - 1, 1) );
@@ -22,7 +27,25 @@ $("#date2").datepicker({
 });
 $("#date2").datepicker("option", "dateFormat", "yy-mm-dd")
 $("#date").datepicker("option", "dateFormat", "yy-mm-dd")
-
+//選擇顏色
+$("#Find_Color").change(function(){
+    $("#Find_Station").empty();
+    Test_Color = "." + $("#Find_Color option:selected").val()
+    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    d3.selectAll(Test_Color).style("opacity" , 1)
+    Test_Circle = "#Circle " + Test_Color
+    $(Test_Circle).each(function(i,d){
+        $("#Find_Station").append($('<option></option>').val(d.id).text(d.id))
+    })
+})
+//選擇車站
+$("#Find_Station").change(function(){
+    Test_Color = "#" + $("#Find_Station option:selected").val()
+    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    d3.selectAll(Test_Color).style("opacity" , 1)
+})
 //進階選項
 $("#hidden_Option").change(function(){
     if($("#hidden_Option").is(":checked") == true){
@@ -76,20 +99,10 @@ $("#Min_Line_Width").change(function(){
         update_network(2017,1,1)
     }
 })
-$("#Find_Color").change(function(){
-    $("#Find_Station").empty();
-    Test_Color = "." + $("#Find_Color option:selected").val()
-    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
-    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
-    d3.selectAll(Test_Color).style("opacity" , 1)
-    Test_Circle = "#Circle " + Test_Color
-    $(Test_Circle).each(function(i,d){
-        $("#Find_Station").append($('<option></option>').val(d.id).text(d.id))
-    })
-})
-$("#Find_Station").change(function(){
-    Test_Color = "#" + $("#Find_Station option:selected").val()
-    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
-    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
-    d3.selectAll(Test_Color).style("opacity" , 1)
+$("#contour_Option").change(function(){
+    if($("#contour_Option").is(":checked") == true){
+        $("#svg_sdj").show()
+    }else{
+        $("#svg_sdj").hide()
+    }
 })

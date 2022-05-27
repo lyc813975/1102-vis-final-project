@@ -56,10 +56,13 @@ $("#date").change(function (d) {
         var Year = +the_date.value.split("-")[0]
         var Month = +the_date.value.split("-")[1]
         var Day = +the_date.value.split("-")[2]
+        Line_svg.style("opacity" , 0 )
         update_network(Year, Month, Day)
     }
 })
-
+$("#date2").change(function (d) {
+    console.log("date2 = " , $("#date2").val())
+})
 let Name = []
 
 //創建svg
@@ -98,7 +101,7 @@ let xScale = d3.scaleLinear()
     .range([0, 1000])
 let Bar_yScale = d3.scaleLinear()
     .domain([0,10])
-    .range([150,1000])
+    .range([40,600])
 //圓半徑 跟  線寬度  可能要再想想，  因為根據Range的不同，可能上下限不同
 var Every_Route = []
 let Time_and_All_Data = []
@@ -156,7 +159,7 @@ d3.csv("路線.csv").then((data) => {
     }
     return d3.csv("out/Link.csv")
 }).then((All_Path_Data) => {
-    //有Station{ station , index , Sum = 0 , x , y , colors}
+    //有Station{ station , index , Sum = 0 }
     //有Every_Route{ route_color , start_station  , next_station  , start_pos_x , start_pos_y ,
     //               next_pos_x , next_pos_y }
     //這裡我想跑所有路線的資料，車站進出流量先不要
@@ -267,15 +270,16 @@ d3.csv("路線.csv").then((data) => {
             //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
             console.log("d = ", d.srcElement.__data__)
             //這能將所有circle轉為原本的顏色
-            d3.selectAll('line').style('stroke', function (data) {
+            svg.selectAll('line').style('stroke', function (data) {
                 return data.route_color
             })
             //這能將所有circle轉為原本的顏色
-            d3.selectAll('circle').style('fill', function (data) {
+            svg.selectAll('circle').style('fill', function (data) {
                 return Check_Station_color(data.station)[0]
             })
             //將選取的轉為白色
             d3.select(this).style('stroke', 'white')
+            Route_All_Year_Line(d.srcElement.__data__.start_station , d.srcElement.__data__.next_station)
         })
     svg.append("g").attr("id", "Circle")
         .selectAll("circle")
@@ -305,17 +309,17 @@ d3.csv("路線.csv").then((data) => {
         .style("opacity" , 0.8)
         .on("click", function (d) {
             //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
-            console.log("d = ", d.srcElement.__data__)
             //這能將所有circle轉為原本的顏色
-            d3.selectAll('line').style('stroke', function (data) {
+            svg.selectAll('line').style('stroke', function (data) {
                 return data.route_color
             })
             //這能將所有circle轉為原本的顏色
-            d3.selectAll('circle').style('fill', function (data) {
+            svg.selectAll('circle').style('fill', function (data) {
                 return Check_Station_color(data.station)[0]
             })
             //將選取的轉為白色
             d3.select(this).style('fill', 'white')
+            Station_All_Year_Line(d.srcElement.__data__.station)
         })
         .on("mousemove", (d) => {
             tooltip.select('text').html(d.srcElement.__data__.station)
@@ -340,7 +344,7 @@ d3.csv("路線.csv").then((data) => {
             .attr("x" , 1500)
             .attr("y" , (d,i)=>Bar_yScale(i))
             .attr("width" , 0)
-            .attr("height" , 50)
+            .attr("height" , 20)
             .on("click" , (d)=>{
                 var sta_name
                 if(d.srcElement.__data__.station === "BL板橋" || d.srcElement.__data__.station === "Y板橋")
@@ -362,6 +366,7 @@ d3.csv("路線.csv").then((data) => {
             .attr("y" , (d,i)=>Bar_yScale(i)-5)
             .attr("font-size" , "30px")
         //let xAxis = d3.axisBottom(Bar_xScale);
+        
         let yAxis = d3.axisLeft(Bar_yScale);
             //svg.append("g")
             //  .attr("class" , "axis")
@@ -369,13 +374,12 @@ d3.csv("路線.csv").then((data) => {
             //    .call(xAxis)
             svg.append("g")
                 .attr("class" , "axis")
-                .attr("transform" , "translate(1500,-60)")
+                .attr("transform" , "translate(1500,-50)")
                 .call(yAxis)
         update_network(2017, 1, 1)
         end_time = new Date().getTime()
         console.log("Time = " , end_time - start_time)
 })
-
 
 function Check_Station_Pos_x(Station_Name){
     let return_station = Station.find((sta)=>sta.station === Station_Name)
@@ -437,6 +441,7 @@ function update_node(source_data) {
     svg.selectAll("circle")
         .data(source_data.station)
         .transition().duration(500)
+        .style("fill", (d) => Check_Station_color(d.station)[0])
         .style("r", function (d) {
             radius = (d.Sum == 0) ? 0 : radius_scale(d.Sum)
             return radius + "px"
@@ -454,6 +459,7 @@ function update_link(source_data) {
     svg.selectAll("line")
         .data(source_data.route)
         .transition().duration(500)
+        .style("stroke", (d) => d.route_color)
         .style("stroke-width", (d) => (d.route_sum == 0) ? 0 : width_scale(d.route_sum))
 }
 
@@ -465,7 +471,7 @@ function update_bar(source_data){
     let Bar_Width_Scale = d3.scaleLinear()
         .domain([Top_Ten[9].Sum,Top_Ten[0].Sum])
         .range([100,300])
-    svg.selectAll("rect")
+    svg.select(".Top_Ten_Bar").selectAll("rect")
         .data(Top_Ten).transition().duration(500)
         .attr("width" , (d)=>{
             return Bar_Width_Scale(d.Sum)

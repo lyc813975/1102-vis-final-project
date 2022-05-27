@@ -11,6 +11,7 @@
     <body>
         <div id="Title" style="text-align: center;font-size:50px;">Test 2</div>
         <div id="cnavas-all" style="float: left;">
+            <!--尋找選項-->
             <div style="display:flex">
                 <span style="position:relative; ">
                     <label style="font-size: 20px; ">日期 (From):</label>
@@ -29,7 +30,7 @@
                         <option value="green">green</option>
                         <option value="red">red</option>
                         <option value="brown">brown</option>
-                        <option value="yellow">yellow</option>
+                        <!-- <option value="yellow">yellow</option> -->
                     </select>
                   </span>
                 <span style="position:relative; left: 750px;">
@@ -42,6 +43,7 @@
                 <label style="font-size: 20px; ">進階選項</label>
                 <input type="checkbox" name="hidden_Option" id="hidden_Option">
             </span>
+            <!--進階選項-->
             <div id="hidden_Block" style="display: none;">
                 <span style="position: relative;">
                     <label style="font-size: 20px; ">圓半徑(Max)</label>
@@ -53,6 +55,15 @@
                     <label style="font-size: 20px; ">圓半徑(Min)</label>
                     <input type="range" name="Min_Circle_Width" id="Min_Circle_Width" min="1" max="7" value="3" step="1">
                     <label id="Min_Circle_Width_Text" style="font-size: 20px; ">3</label>
+                </span>
+                ,
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">忘記叫啥圖的開關</label>
+                    <input type="checkbox" name="contour_Option" id="contour_Option" checked>
+                </span>
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">折線圖是否詳細</label>
+                    <input type="checkbox" name="Alone_Option" id="Alone_Option" >
                 </span>
                 <br/>
                 <span style="position: relative;">
@@ -73,6 +84,7 @@
         <script src="contour.js"></script>
         <script src="advanced_Option.js"></script>
         <script src="Test3.js"></script>
+        <script src="Station_All_Year.js"></script>
     </body>
 </html>
 
@@ -85,7 +97,6 @@
         position: absolute;
         z-index: -1;
     } 
-    
     #cavas-all{
         position:relative;
     }
