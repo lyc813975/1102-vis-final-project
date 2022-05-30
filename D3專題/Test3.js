@@ -1,53 +1,53 @@
-class Node {
-    constructor(data, cost) {
-        this.dest = data;
-        this.cost = cost;
-        this.next = null;
-    }
-}
+// class Node {
+//     constructor(data, cost) {
+//         this.dest = data;
+//         this.cost = cost;
+//         this.next = null;
+//     }
+// }
 
-class LinkedList {
-    constructor() {
-        this.head = null;
-        this.tail = null;
-        this.length = 0;
-    }
+// class LinkedList {
+//     constructor() {
+//         this.head = null;
+//         this.tail = null;
+//         this.length = 0;
+//     }
 
-    append(data, cost) {
-        const newNode = new Node(data, cost);
-        if (this.isEmpty()) {
-            this.head = newNode;
-            this.tail = newNode;
-        } else {
-            this.tail.next = newNode;
-            this.tail = newNode;
-        }
-        this.length += 1;
-    }
+//     append(data, cost) {
+//         const newNode = new Node(data, cost);
+//         if (this.isEmpty()) {
+//             this.head = newNode;
+//             this.tail = newNode;
+//         } else {
+//             this.tail.next = newNode;
+//             this.tail = newNode;
+//         }
+//         this.length += 1;
+//     }
     
-    getCost(dest) {
-        let currNode = this.head;
-        while (currNode.dest) {
-            if (currNode.dest === dest) return currNode.cost
-            currNode = currNode.next;
-        }
-        return -1
-    }
+//     getCost(dest) {
+//         let currNode = this.head;
+//         while (currNode.dest) {
+//             if (currNode.dest === dest) return currNode.cost
+//             currNode = currNode.next;
+//         }
+//         return -1
+//     }
 
-    isEmpty() {
-        return this.length === 0;
-    }
+//     isEmpty() {
+//         return this.length === 0;
+//     }
 
-    clear() {
-        this.head = null;
-        this.tail = null;
-        this.length = 0;
-    }
+//     clear() {
+//         this.head = null;
+//         this.tail = null;
+//         this.length = 0;
+//     }
 
-    size() {
-        return this.length;
-    }
-}
+//     size() {
+//         return this.length;
+//     }
+// }
 
 let the_date = document.getElementById("date")
 $("#date").change(function (d) {
@@ -108,11 +108,6 @@ let Time_and_All_Data = []
 var Station = []
 var Station_Test = []
 var start_time = new Date().getTime()
-var path_table = new Array(108)
-for (var i = 0; i < path_table.length; ++i) path_table[i] = Array(108).fill("")
-var path_table_2020 = new Array(119)
-for (var i = 0; i < path_table_2020.length; ++i) path_table_2020[i] = Array(119).fill("")
-var riding_cost = Array(119) // 不能用fill 會指向同個位置
 var end_time = 0
     //讀取路線資料ˊ ˇ ˋ
 d3.csv("路線.csv").then((data) => {
@@ -141,22 +136,6 @@ d3.csv("路線.csv").then((data) => {
         Station_Test.push({station: d.station, Sum: +0})    
     })
     //這邊去更動所有路線上的xy值
-    return d3.csv("path.csv")
-}).then((path_data) => {
-    for (d of path_data) path_table[+d.src][d.dest] = d.route
-    return d3.csv("path-2020.csv")
-}).then((path_2020_data) => {
-    for (d of path_2020_data) path_table_2020[+d.src][+d.dest] = d.route
-    return d3.csv("riding time.csv")
-}).then((riding_time_data) => {
-    for (d of riding_time_data) {
-        if (riding_cost[+d.from] === undefined)
-            riding_cost[+d.from] = new LinkedList() 
-        riding_cost[+d.from].append(+d.to, +d.cost)
-        if (riding_cost[+d.to] === undefined)
-            riding_cost[+d.to] = new LinkedList() 
-        riding_cost[+d.to].append(+d.from, +d.cost)
-    }
     return d3.csv("out/Link.csv")
 }).then((All_Path_Data) => {
     //有Station{ station , index , Sum = 0 }
@@ -320,6 +299,8 @@ d3.csv("路線.csv").then((data) => {
             //將選取的轉為白色
             d3.select(this).style('fill', 'white')
             Station_All_Year_Line(d.srcElement.__data__.station)
+            var year = +document.getElementById("date").value.split("-")[0]
+            OD_Pair_Draw(d.srcElement.__data__.station, "迴龍", year)
         })
         .on("mousemove", (d) => {
             tooltip.select('text').html(d.srcElement.__data__.station)
@@ -513,71 +494,4 @@ async function display_in_time_interval(
             }
         }
     }
-}
-
-function generate_OD_pair(src=81, dest=98, year=2020) {
-    var riding_time = []
-    var cost = 0
-    var path = (year < 2020) ? path_table[src][dest] : path_table_2020[src][dest]
-    var nodes = path.split(',')
-    var now_line = is_the_same_line(Number(nodes[0]), Number(nodes[1]))
-    // 搭乘和轉乘時間
-    for (var i = 0; i < nodes.length - 1; ++i) {
-        var next_line = is_the_same_line(Number(nodes[i]), Number(nodes[i + 1]))
-        if (now_line != next_line) {
-            if (now_line === undefined) {
-                riding_time.pop()
-                riding_time.push(["transferring", 7])
-            } else {
-                riding_time.push([now_line, cost])
-                riding_time.push(["transferring", 2])
-            }
-            cost = 0
-        }
-        cost += riding_cost[Number(nodes[i])].getCost(Number(nodes[i + 1]))
-        now_line = next_line
-    }
-    riding_time.push([now_line, cost])
-    var total_time = new Array(24)
-    var waiting_time = {
-        'brown': [-1,-1,-1,-1,-1,-1,3,3,3,3,5,5,5,5,5,5,5,3,3,3,5,5,5,5],
-        'red': [-1,-1,-1,-1,-1,-1,3,3,3,5,5,5,5,4,5,5,3,3,3,5,4,5,5,8],
-        'green': [-1,-1,-1,-1,-1,-1,3,2,2,3,4,3,4,4,3,4,3,3,2,2,3,3,4,6],
-        'orange': [-1,-1,-1,-1,-1,-1,4,3,3,4,5,4,5,5,5,5,3,3,3,5,4,5,5,6],
-        'blue': [-1,-1,-1,-1,-1,-1,3,3,3,3,4,5,5,5,4,4,4,3,3,3,4,4,5,4],
-        'yellow': [-1,-1,-1,-1,-1,-1,3,3,3,3,5,5,5,5,5,5,5,3,3,3,5,5,5,5]
-    }
-
-    // 加入等車時間
-    for (var i = 0; i < total_time.length; ++i) {
-        total_time[i] = []
-        if (i < 6 || i == 23) continue
-        for (const [type, cost] of riding_time) {
-            if (type !== "transferring") total_time[i].push(["waiting", waiting_time[type][i]])
-            total_time[i].push([type, cost])
-        }
-    }
-    return total_time
-}
-
-function is_the_same_line(station1, station2) {
-    var line1 = get_line_of_station(station1)
-    var line2 = get_line_of_station(station2)
-    var intersection = line1.filter(element => line2.includes(element))
-    return intersection[0]
-}
-
-function get_line_of_station(station) {
-    var lines = {
-        'brown': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
-        'red': [24, 25, 26, 8, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
-        'green': [51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 29, 61, 62, 63, 32, 64, 10, 65, 66, 67],
-        'orange': [68, 69, 70, 71, 60, 28, 72, 64, 73, 74, 34, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89],
-        'blue': [90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 62, 31, 100, 72, 9, 101, 102, 103, 104, 105, 106, 107, 23],
-        'yellow': [55, 108, 109, 110, 69, 111, 112, 113, 114, 115, 116, 80, 117, 118]
-    }
-    var res = []
-    for (const [key, value] of Object.entries(lines))
-        if (value.find(element => element == station) !== undefined) res.push(key)
-    return res
 }
