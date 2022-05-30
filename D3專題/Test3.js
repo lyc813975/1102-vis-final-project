@@ -526,10 +526,11 @@ function generate_OD_pair(src=81, dest=98, year=2020) {
         var next_line = is_the_same_line(Number(nodes[i]), Number(nodes[i + 1]))
         if (now_line != next_line) {
             if (now_line === undefined) {
+                riding_time.pop()
                 riding_time.push(["transferring", 7])
             } else {
-                riding_time.push(["transferring", 2])
                 riding_time.push([now_line, cost])
+                riding_time.push(["transferring", 2])
             }
             cost = 0
         }
@@ -537,7 +538,6 @@ function generate_OD_pair(src=81, dest=98, year=2020) {
         now_line = next_line
     }
     riding_time.push([now_line, cost])
-
     var total_time = new Array(24)
     var waiting_time = {
         'brown': [-1,-1,-1,-1,-1,-1,3,3,3,3,5,5,5,5,5,5,5,3,3,3,5,5,5,5],
