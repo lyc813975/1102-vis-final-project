@@ -187,8 +187,8 @@ d3.csv("路線.csv").then((data) => {
         .attr("id", function(d) {
             src = d.start_station
             dest = d.next_station
-            if(src === "BL板橋" || src === "Y板橋") src = "板橋"
-            if(dest === "BL板橋" || dest === "Y板橋") dest = "板橋"
+            // if(src === "BL板橋" || src === "Y板橋") src = "板橋"
+            // if(dest === "BL板橋" || dest === "Y板橋") dest = "板橋"
             return `${src}-${dest}`
         })
         .attr("class", (d) => d.route_color)
@@ -222,8 +222,8 @@ d3.csv("路線.csv").then((data) => {
         .enter()
         .append("circle")
         .attr("id", function (d) {
-            if(d.station === "BL板橋" || d.station === "Y板橋")
-                return "板橋"
+            // if(d.station === "BL板橋" || d.station === "Y板橋")
+            //     return "板橋"
             return d.station
         })
         .attr("class", function (d) {
@@ -285,11 +285,10 @@ d3.csv("路線.csv").then((data) => {
             .attr("width" , 0)
             .attr("height" , 20)
             .on("click" , (d)=>{
-                var sta_name = ""
-                if(d.srcElement.__data__.station === "BL板橋" || d.srcElement.__data__.station === "Y板橋")
-                    sta_name = "板橋"
-                else
-                    sta_name = d.srcElement.__data__.station
+                var sta_name = d.srcElement.__data__.station
+                // if(d.srcElement.__data__.station === "BL板橋" || d.srcElement.__data__.station === "Y板橋")
+                    // sta_name = "板橋"
+                console.log(sta_name)
                 // svg.selectAll("line").style("opacity" , 0.3)
                 // svg.selectAll("circle").style("opacity" , 0.3)
                 // svg.select(sta_name).style("opacity" , 1)
