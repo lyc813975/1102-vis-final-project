@@ -71,7 +71,7 @@ Line_svg.append("g").attr("id","Line_Grid")
         .style("opacity",0.3)
 
 Line_svg.append("text").attr("id","Line_Text")
-        .attr("y", 50).style("font-size","40px").style("text-align","center").attr("x",180)
+        .attr("y", 50).style("font-size","40px").style("text-align","center").attr("x",100)
 //根據選擇的車站 畫出折線圖的函式
 function Station_All_Year_Line(the_station){
     Line_svg.select("#Line_Text").text(the_station + "站 進出站人數")
