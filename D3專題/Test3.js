@@ -1,18 +1,5 @@
 let the_date = document.getElementById("date")
-$("#date").change(function (d) {
-    if(the_date.value != ""){
-        console.log("theDate" , the_date.value)
-        var Year = +the_date.value.split("-")[0]
-        var Month = +the_date.value.split("-")[1]
-        var Day = +the_date.value.split("-")[2]
-        update_network(Year, Month, Day)
-    }
-})
-$("#date2").change(function (d) {
-    console.log("date2 = " , $("#date2").val())
-})
-let Name = []
-
+let current_selected = ""
 //創建svg
 let svg = d3.select("#Canvas")
     .append("svg")
@@ -30,7 +17,7 @@ let tooltip = d3.select("#Canvas")
 d3.select("#Canvas").on("mousemove", function (e) {
     tooltip.style("left", e.layerX + 20).style("top", e.layerY + 35)
 })
-d3.select("#Canvas").on("mousedown", unselect_object)
+// d3.select("#Canvas").on("mousedown", unselect_object)
 tooltip.append("text")
     .attr("x", "50%")
     .attr("y", "50%")
@@ -45,8 +32,14 @@ let xScale = d3.scaleLinear()
     .domain([121.39, 121.62])
     .range([0, 1000])
 let Bar_yScale = d3.scaleLinear()
-    .domain([0,10])
-    .range([70,600])
+    .domain([0,15])
+    .range([70,900])
+// var radius_scale = d3.scaleLinear()
+//     .domain([192, 450261])
+//     .range([$("#Min_Circle_Width").val(), $("#Max_Circle_Width").val()])
+// var width_scale = d3.scaleLinear()
+//     .domain([42, 469569])
+//     .range([$("#Min_Line_Width").val(), $("#Max_Line_Width").val()])
 //圓半徑 跟  線寬度  可能要再想想，  因為根據Range的不同，可能上下限不同
 var Every_Route = []
 let Time_and_All_Data = []
@@ -277,7 +270,8 @@ d3.csv("路線.csv").then((data) => {
             .selectAll("rect")
             .data(Time_and_All_Data[0][0].station)
             .enter().filter(function(d,i){
-                return i < 10
+                return i < 15
+                // return i < 10
             })
             .append("rect")
             .attr("x" , 1200)
@@ -299,7 +293,8 @@ d3.csv("路線.csv").then((data) => {
             .selectAll("text")
             .data(Time_and_All_Data[0][0].station)
             .enter().filter(function(d,i){
-                return i < 10
+                return i < 15
+                // return i < 10
             })
             .append("text")
             .attr("x" , 1200)
@@ -411,7 +406,7 @@ function update_bar(source_data){
     Top_Ten.sort((a,b) => d3.descending(a.Sum , b.Sum))
     //因為只要前十名 所以只看前十個
     let Bar_Width_Scale = d3.scaleLinear()
-        .domain([Top_Ten[9].Sum,Top_Ten[0].Sum])
+        .domain([Top_Ten[14].Sum,Top_Ten[0].Sum])
         .range([100,300])
     svg.select(".Top_Ten_Bar").selectAll("rect")
         .data(Top_Ten).transition().duration(500)
@@ -432,8 +427,12 @@ function update_Text(Source){
 
 
 function select_station(station) {
-    // unselect_object()
-
+    if (station === current_selected) {
+        current_selected = ""
+        unselect_object()
+        return
+    }
+    current_selected = station
     d3.select("#Line").selectAll("line").style("opacity" , 0.3)
     d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
     d3.selectAll("#" + station).style("opacity" , 1)
@@ -443,13 +442,18 @@ function select_station(station) {
 }
 
 function select_link(src_station, dest_station) {
-    // unselect_object()
-
+    var link = `${src_station}-${dest_station}`
+    if (link === current_selected) {
+        current_selected = ""
+        unselect_object()
+        return
+    }
+    current_selected = link
     d3.select("#Line").selectAll("line").style("opacity" , 0.3)
     d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
     d3.selectAll("#" + src_station).style("opacity" , 1)
     d3.selectAll("#" + dest_station).style("opacity" , 1)
-    d3.selectAll("#" + `${src_station}-${dest_station}`).style("opacity" , 1)
+    d3.selectAll("#" + link).style("opacity" , 1)
     Route_All_Year_Line(src_station, dest_station)
 }
 
@@ -463,7 +467,7 @@ function unselect_object() {
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 // args: 給定開始,結束兩日期 *注意: 開始日期要早於結束日期
 // func: 將圖從開始日期以天為單位增加直到結束日期 *注意: 還沒結束時就另外改變圖不知道會怎樣
-async function display_in_time_interval(
+async function display_network_range(
         y1 = 2017, m1 = 1, d1 = 1,
         y2 = 2021, m2 = 12, d2 = 31) {
     var day_of_month = [-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -479,9 +483,10 @@ async function display_in_time_interval(
             else
                 var max_day = day_of_month[month]
             for (day = min_day; day <= max_day; ++day) {
-                //console.log(year, month, day)
+                console.log(year, month, day)
                 update_network(year, month, day)
                 await sleep(750)
+                if (range_display_interrupt) return
             }
         }
     }

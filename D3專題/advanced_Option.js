@@ -3,6 +3,7 @@
 $("#date").datepicker({
     minDate: new Date(2017, 1 - 1, 1), maxDate: new Date(2021, 12 - 1, 31), changeMonth: true
     , changeYear: true , onClose:function(selectedDate){
+        $("#date2").empty()
         if(selectedDate != ""){
             year = +selectedDate.split("-")[0]
             if(year>=2020) 
@@ -15,6 +16,19 @@ $("#date").datepicker({
         }     
     }
 });
+$("#date").datepicker("option", "dateFormat", "yy-mm-dd")
+$("#date").change(function (d) {
+    if(this.value != ""){
+        range_display_interrupt = true // 改變日期直接中斷範圍顯示
+        console.log("theDate" , this.value)
+        var date = this.value
+        var Year = +date.split("-")[0]
+        var Month = +date.split("-")[1]
+        var Day = +date.split("-")[2]
+        update_network(Year, Month, Day)
+    }
+})
+
 $("#date2").datepicker({
     minDate: new Date(2017, 1 - 1, 1), maxDate: new Date(2021, 12 - 1, 31), changeMonth: true
     , changeYear: true , onClose:function(selectedDate){
@@ -26,11 +40,20 @@ $("#date2").datepicker({
     }
 });
 $("#date2").datepicker("option", "dateFormat", "yy-mm-dd")
-$("#date").datepicker("option", "dateFormat", "yy-mm-dd")
+$("#date2").change(function (d) {
+    range_display_interrupt = false // 開始範圍顯示
+    var date1 = $("#date").val().split("-")
+    var date2 = this.value.split("-")
+    display_network_range(+date1[0], +date1[1], +date1[2], +date2[0], +date2[1], +date2[2])
+})
 //選擇顏色
 $("#Find_Color").change(function(){
     $("#Find_Station").empty();
     Test_Color = "." + $("#Find_Color option:selected").val()
+    if (Test_Color === ".X") { // 處理空選項
+        unselect_object()
+        return
+    }
     d3.select("#Line").selectAll("line").style("opacity" , 0.3)
     d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
     d3.selectAll(Test_Color).style("opacity" , 1)
