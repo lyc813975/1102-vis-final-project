@@ -16,14 +16,17 @@ Line_svg.append("g").attr("class","Spr_Test")//.style("opacity" , 0)
 let Line_X_Scale= d3.scaleLinear()
     .domain([0,59])
     .range([50,750])
-let Line_Y_Scale= d3.scaleLinear()
+let y_support_line = d3.scaleLinear()
     .domain([0,10])
     .range([350,50])
-let Y_axis = d3.axisLeft(Line_Y_Scale).tickValues([])
+let Y_support_line = d3.axisLeft(y_support_line).tickValues([])
 Line_svg.append("g")
     .attr("class" , "Line_Y_axis")
     .attr("transform" , "translate(50,0)")
-    .call(Y_axis)
+    .call(Y_support_line)
+let y_axis = Line_svg.append("g")
+    .attr("id", "temp_y_axis")
+    .attr("transform" , "translate(50,0)")
 let X_axis = d3.axisBottom(Line_X_Scale)
     .tickFormat(function(d){
         switch(d){
@@ -68,10 +71,10 @@ Line_svg.append("g").attr("id","Line_Grid")
         .style("opacity",0.3)
 
 Line_svg.append("text").attr("id","Line_Text")
-        .attr("y", 50).style("font-size","40px").style("text-align","center")
+        .attr("y", 50).style("font-size","40px").style("text-align","center").attr("x",180)
 //根據選擇的車站 畫出折線圖的函式
 function Station_All_Year_Line(the_station){
-    Line_svg.select("#Line_Text").text(the_station).attr("x",250)
+    Line_svg.select("#Line_Text").text(the_station + "站 進出站人數")
     let the_data = []
     //如果有勾選詳細
     if($("#Alone_Option").is(":checked") == true){
@@ -91,11 +94,13 @@ function Station_All_Year_Line(the_station){
         .domain([d3.min(the_data),d3.max(the_data)])
         .range([350,50])
     let L_X_Scale= d3.scaleLinear()
-     .domain([0,the_data.length])
-     .range([50,750])
+    .domain([0,the_data.length])
+    .range([50,750])
     let l = d3.line().x(function(d,i){
         return L_X_Scale(i)
     }).y((d,i)=>Line_Y_Scale(d))
+
+    y_axis.call(d3.axisLeft(Line_Y_Scale))
 
     Line_svg.select(".Special_path").attr("d",l(the_data))
     .attr("stroke","black")
@@ -107,8 +112,8 @@ function Station_All_Year_Line(the_station){
 function Route_All_Year_Line(sta_sta , end_sta){
     Line_svg.select(".Line_axis").style("opacity" , 1) // 有用到？
     Line_svg.select(".Spr_Test").style("opacity", 1) // 有用到？
-    lt = sta_sta + "→" + end_sta
-    Line_svg.select("#Line_Text").text(lt).attr("x" ,200)
+    lt = sta_sta + "→" + end_sta + "路段 使用人數"
+    Line_svg.select("#Line_Text").text(lt)
     let the_data = []
     //如果有勾選詳細
     if($("#Alone_Option").is(":checked") == true){
@@ -139,8 +144,8 @@ function Route_All_Year_Line(sta_sta , end_sta){
         .domain([d3.min(the_data),d3.max(the_data)])
         .range([350,50])
     let L_X_Scale= d3.scaleLinear()
-     .domain([0,the_data.length])
-     .range([50,750])
+    .domain([0,the_data.length])
+    .range([50,750])
     let l = d3.line().x(function(d,i){
         return L_X_Scale(i)
     }).y((d,i)=>Line_Y_Scale(d))
