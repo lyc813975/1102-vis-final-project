@@ -10,10 +10,12 @@ let OD_Pair_svg = d3.select("#Canvas1")
     .style("left", 880).style("top", 1050).style("display", "none")
 
 // 圖表名稱
-let OD_Pair_title = OD_Pair_svg.append("text")
+let OD_pair_info_text = OD_Pair_svg.selectAll("text")
+    .data(new Array(18))
+    .enter()
+    .append("text")
     .attr("x", 80)
-    .attr("y", -200)
-    .style("font-size" , "20px")
+    .attr("y", (d, i) => -280 + i * 20)
 //Color
 let OD_color = d3.scaleOrdinal()
     .domain(["transferring", "waiting", "orange", "yellow", "brown", "blue", "red", "green", "grey"])
@@ -47,47 +49,34 @@ OD_Pair_svg.append("g")
         .text((d, i) => i % 3 == 0 ? i : "")
     )
 
-// let current_OD_pair = []
-// let OD_chart_tooltip = d3.select("#Canvas1")
-//     .append("svg")
-//     .attr('width', 120)
-//     .attr('height', 500)
-//     .style('display', 'none')
-//     .style('background', 'blue')
-//     .style('position', 'absolute')
-// OD_chart_tooltip.append("text")
-//     .attr("x", "50%")
-//     .attr("y", "50%")
-//     .style("text-anchor", "middle")
-//     .style("fill", "white")
-//     .style("font-size", "12px")
-// d3.select("#Canvas1").on("mousemove", function (e) {
-//     OD_chart_tooltip.style("left", e.layerX + 800).style("top", e.layerY + 1000)
-// })
+let current_OD_pair = []
+
 //Data   Test
 //OD_data[24小時][動作 , 花費時間]
 //OD_data[x][y] = [第幾小時 (0 ~ 23) , 動作 , 前一個總共花費時間 , 總共花費時間]
-let OD_data = [[["blue", 5], ["green", 1], ["red", 3]]
-    , [["grey", 7], ["waiting", 2]]
-    , [["transferring", 4]]
-    , [["yellow", 5]]
-    , [["orange", 9], ["brown", 1]]]
+// let OD_data = [[["blue", 5], ["green", 1], ["red", 3]]
+//     , [["grey", 7], ["waiting", 2]]
+//     , [["transferring", 4]]
+//     , [["yellow", 5]]
+//     , [["orange", 9], ["brown", 1]]]
 
-let OD_data2 = [[["brown", 5], ["waiting", 1], ["red", 3]]
-    , [["grey", 7], ["waiting", 2], ["yellow", 3]]
-    , [["transferring", 4], ["grey", 2]]
-    , [["yellow", 5], ["blue", 7]]
-    , [["orange", 9], ["brown", 1]]
-    , [["waiting", 4]]]
+// let OD_data2 = [[["brown", 5], ["waiting", 1], ["red", 3]]
+//     , [["grey", 7], ["waiting", 2], ["yellow", 3]]
+//     , [["transferring", 4], ["grey", 2]]
+//     , [["yellow", 5], ["blue", 7]]
+//     , [["orange", 9], ["brown", 1]]
+//     , [["waiting", 4]]]
 
-let OD_data3 = [[["waiting", 3], ["orange", 2], ["transferring", 2], ["waiting", 3], ["yellow", 3], ["transferring", 7], ["waiting", 3], ["blue", 2]],
-    [["waiting", 5], ["orange", 2], ["transferring", 2], ["waiting", 8], ["yellow", 3], ["transferring", 7], ["waiting", 5], ["blue", 2]]]
+// let OD_data3 = [[["waiting", 3], ["orange", 2], ["transferring", 2], ["waiting", 3], ["yellow", 3], ["transferring", 7], ["waiting", 3], ["blue", 2]],
+//     [["waiting", 5], ["orange", 2], ["transferring", 2], ["waiting", 8], ["yellow", 3], ["transferring", 7], ["waiting", 5], ["blue", 2]]]
 
 //OD_Pair_svg.append("g").attr("id","OD_Test")
 // OD_Pair_Draw()
 
 function OD_Pair_Draw(src, dest, year) {
-    OD_Pair_title.text(src + "到" + dest)
+    var title = [src + "到" + dest]
+    OD_pair_info_text.data(title).text((d) => d)
+
     // 每次重畫一張圖 先把原有的清掉
     if (!OD_Pair_svg.select("#OD_Test").empty()) {
         OD_Pair_svg.select("#OD_Test").remove()
@@ -142,48 +131,45 @@ function OD_Pair_Draw(src, dest, year) {
         .selectAll("path")
         .data((d) => d).join("path").attr("d", (d) => arc(d)).attr("fill", (d) => OD_color(d[1]))
         // 顯示路徑的詳細資訊
-        // .on("click", (d) => {
-        //     var id = d.srcElement.parentNode.id
-        //     var OD_pair = current_OD_pair[id]
-        //     var context = OD_pair_to_string(OD_pair)
-        //     console.log(OD_chart_tooltip.select("svg"))
-        //     OD_chart_tooltip.style("display", "")
-        //     OD_chart_tooltip.select('text').html(context)
-        // })
-        // .on("mouseout", (d) => {
-        //     OD_chart_tooltip.style("display", "none")
-        // })
+        .on("click", (d) => {
+            var id = d.srcElement.parentNode.id
+            var OD_pair = current_OD_pair[id]
+            var context = [title, `${id}時`]
+            context = context.concat(OD_pair_to_string(OD_pair))
+            console.log(context)
+            OD_pair_info_text.data(context).text((d) => d)
+        })
     
     show_OD_pair_svg()
 }
 
 function OD_pair_to_string(pairs) {
-    var res = ""
+    var res = []
     for (p of pairs) {
         switch(p[0]) {
             case "transferring":
-                res += `轉乘: ${p[1]}分鐘\n`
+                res.push(`轉乘: ${p[1]}分鐘`)
                 break
             case "waiting":
-                res += `等待: ${p[1]}分鐘\n`
+                res.push(`等待: ${p[1]}分鐘`)
                 break
             case "green":
-                res += `綠線: ${p[1]}分鐘\n`
+                res.push(`綠線: ${p[1]}分鐘`)
                 break
             case "red":
-                res += `紅線: ${p[1]}分鐘\n`
+                res.push(`紅線: ${p[1]}分鐘`)
                 break
             case "yellow":
-                res += `黃線: ${p[1]}分鐘\n`
+                res.push(`黃線: ${p[1]}分鐘`)
                 break
             case "blue":
-                res += `藍線: ${p[1]}分鐘\n`
+                res.push(`藍線: ${p[1]}分鐘`)
                 break
             case "orange":
-                res += `橘線: ${p[1]}分鐘\n`
+                res.push(`橘線: ${p[1]}分鐘`)
                 break
             case "brown":
-                res += `棕線: ${p[1]}分鐘\n`
+                res.push(`棕線: ${p[1]}分鐘`)
                 break
             default:
                 console.log("Unexpected type")
