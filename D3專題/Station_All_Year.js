@@ -9,7 +9,7 @@ let Line_svg = d3.select("#Canvas")
     .attr('height', 400)
     .style('background', 'white')
     .style('position', 'absolute')
-    .style("left" , 1000).style("top",700).style("opacity" , 0 )
+    .style("left" , 50).style("top",1050).style("display" , "none")
 
 Line_svg.append("g").attr("class","Spr_Test")//.style("opacity" , 0)
     .append("path").attr("class" , "Special_path")
@@ -71,7 +71,6 @@ Line_svg.append("text").attr("id","Line_Text")
         .attr("y", 50).style("font-size","40px").style("text-align","center")
 //根據選擇的車站 畫出折線圖的函式
 function Station_All_Year_Line(the_station){
-    Line_svg.style("opacity" , 1 )
     Line_svg.select("#Line_Text").text(the_station).attr("x",250)
     let the_data = []
     //如果有勾選詳細
@@ -102,10 +101,12 @@ function Station_All_Year_Line(the_station){
     .attr("stroke","black")
     .attr("stroke-width" , 2)
     .attr("fill","none")
+    
+    show_line_svg()
 }
 function Route_All_Year_Line(sta_sta , end_sta){
-    Line_svg.select(".Line_axis").style("opacity" , 1)
-    Line_svg.select(".Spr_Test").style("opacity", 1)
+    Line_svg.select(".Line_axis").style("opacity" , 1) // 有用到？
+    Line_svg.select(".Spr_Test").style("opacity", 1) // 有用到？
     lt = sta_sta + "→" + end_sta
     Line_svg.select("#Line_Text").text(lt).attr("x" ,200)
     let the_data = []
@@ -148,4 +149,10 @@ function Route_All_Year_Line(sta_sta , end_sta){
     .attr("stroke","black")
     .attr("stroke-width" , 2)
     .attr("fill","none")
+
+    show_line_svg()
 }
+
+function hide_line_svg() { Line_svg.style("display" , "none") }
+
+function show_line_svg() { Line_svg.style("display" , "") }

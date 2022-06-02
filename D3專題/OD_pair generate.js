@@ -176,7 +176,7 @@ var station_to_code = {
     "新北產業園區": 118,
 }
 
-function generate_OD_pair(src="新莊", dest="江子翠", year = 2020) {
+function generate_OD_pair(src, dest, year) {
     src = station_to_code[src]
     dest = station_to_code[dest]
     var reverse = false
@@ -192,7 +192,7 @@ function generate_OD_pair(src="新莊", dest="江子翠", year = 2020) {
     var path = (year < 2020) ? path_table[src][dest] : path_table_2020[src][dest]
     var nodes = path.split(',')
     if (reverse) nodes = nodes.reverse()
-    console.log(nodes)
+    // console.log(nodes)
     var now_line = is_the_same_line(Number(nodes[0]), Number(nodes[1]))
     // 搭乘和轉乘時間
     for (var i = 0; i < nodes.length - 1; ++i) {

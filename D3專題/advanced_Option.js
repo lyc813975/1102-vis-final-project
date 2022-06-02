@@ -35,16 +35,22 @@ $("#Find_Color").change(function(){
     d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
     d3.selectAll(Test_Color).style("opacity" , 1)
     Test_Circle = "#Circle " + Test_Color
+    // 第一個為空選項 否則直接選第一個選項會不更新 
+    $("#Find_Station").append($('<option></option>').val("X").text(""))
     $(Test_Circle).each(function(i,d){
         $("#Find_Station").append($('<option></option>').val(d.id).text(d.id))
     })
 })
 //選擇車站
 $("#Find_Station").change(function(){
-    Test_Color = "#" + $("#Find_Station option:selected").val()
-    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
-    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
-    d3.selectAll(Test_Color).style("opacity" , 1)
+    // Test_Color = "#" + $("#Find_Station option:selected").val()
+    // console.log(Test_Color)
+    // d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    // d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    // d3.selectAll(Test_Color).style("opacity" , 1)
+    var target_station = $("#Find_Station option:selected").val()
+    if (target_station === "X") return // 空選項除理
+    select_station(target_station)
 })
 //進階選項
 $("#hidden_Option").change(function(){

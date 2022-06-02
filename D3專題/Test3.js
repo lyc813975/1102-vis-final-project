@@ -1,54 +1,3 @@
-// class Node {
-//     constructor(data, cost) {
-//         this.dest = data;
-//         this.cost = cost;
-//         this.next = null;
-//     }
-// }
-
-// class LinkedList {
-//     constructor() {
-//         this.head = null;
-//         this.tail = null;
-//         this.length = 0;
-//     }
-
-//     append(data, cost) {
-//         const newNode = new Node(data, cost);
-//         if (this.isEmpty()) {
-//             this.head = newNode;
-//             this.tail = newNode;
-//         } else {
-//             this.tail.next = newNode;
-//             this.tail = newNode;
-//         }
-//         this.length += 1;
-//     }
-    
-//     getCost(dest) {
-//         let currNode = this.head;
-//         while (currNode.dest) {
-//             if (currNode.dest === dest) return currNode.cost
-//             currNode = currNode.next;
-//         }
-//         return -1
-//     }
-
-//     isEmpty() {
-//         return this.length === 0;
-//     }
-
-//     clear() {
-//         this.head = null;
-//         this.tail = null;
-//         this.length = 0;
-//     }
-
-//     size() {
-//         return this.length;
-//     }
-// }
-
 let the_date = document.getElementById("date")
 $("#date").change(function (d) {
     if(the_date.value != ""){
@@ -56,7 +5,6 @@ $("#date").change(function (d) {
         var Year = +the_date.value.split("-")[0]
         var Month = +the_date.value.split("-")[1]
         var Day = +the_date.value.split("-")[2]
-        Line_svg.style("opacity" , 0 )
         update_network(Year, Month, Day)
     }
 })
@@ -82,10 +30,7 @@ let tooltip = d3.select("#Canvas")
 d3.select("#Canvas").on("mousemove", function (e) {
     tooltip.style("left", e.layerX + 20).style("top", e.layerY + 35)
 })
-d3.select("#Canvas").on("mousedown", function () {
-    svg.selectAll("line").style("opacity" , 1)
-    svg.selectAll("circle").style("opacity" , 1)
-})
+d3.select("#Canvas").on("mousedown", unselect_object)
 tooltip.append("text")
     .attr("x", "50%")
     .attr("y", "50%")
@@ -95,13 +40,13 @@ tooltip.append("text")
 //線性轉換
 let yScale = d3.scaleLinear()
     .domain([24.95, 25.17])
-    .range([800, 100])
+    .range([900, 50])
 let xScale = d3.scaleLinear()
     .domain([121.39, 121.62])
     .range([0, 1000])
 let Bar_yScale = d3.scaleLinear()
     .domain([0,10])
-    .range([40,600])
+    .range([70,600])
 //圓半徑 跟  線寬度  可能要再想想，  因為根據Range的不同，可能上下限不同
 var Every_Route = []
 let Time_and_All_Data = []
@@ -109,6 +54,7 @@ var Station = []
 var Station_Test = []
 var start_time = new Date().getTime()
 var end_time = 0
+
     //讀取路線資料ˊ ˇ ˋ
 d3.csv("路線.csv").then((data) => {
     let Route_data = data.map((d) => {
@@ -238,6 +184,13 @@ d3.csv("路線.csv").then((data) => {
         .data(Every_Route) // 從2017-01-01拿資料初始link
         .enter()
         .append("line")
+        .attr("id", function(d) {
+            src = d.start_station
+            dest = d.next_station
+            if(src === "BL板橋" || src === "Y板橋") src = "板橋"
+            if(dest === "BL板橋" || dest === "Y板橋") dest = "板橋"
+            return `${src}-${dest}`
+        })
         .attr("class", (d) => d.route_color)
         .attr("x1", (d) => xScale(Check_Station_Pos_x(d.start_station)))
         .attr("y1", (d) => yScale(Check_Station_Pos_y(d.start_station)))
@@ -246,19 +199,22 @@ d3.csv("路線.csv").then((data) => {
         .style("stroke-width", 0) // 先給空值避免顯示錯誤
         .style("stroke", (d) => d.route_color)
         .on("click", function (d) {
-            //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
-            console.log("d = ", d.srcElement.__data__)
-            //這能將所有circle轉為原本的顏色
-            svg.selectAll('line').style('stroke', function (data) {
-                return data.route_color
-            })
-            //這能將所有circle轉為原本的顏色
-            svg.selectAll('circle').style('fill', function (data) {
-                return Check_Station_color(data.station)[0]
-            })
+            // //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
+            // console.log("d = ", d.srcElement.__data__)
+            // //這能將所有circle轉為原本的顏色
+            // svg.selectAll('line').style('stroke', function (data) {
+            //     return data.route_color
+            // })
+            // //這能將所有circle轉為原本的顏色
+            // svg.selectAll('circle').style('fill', function (data) {
+            //     return Check_Station_color(data.station)[0]
+            // })
             //將選取的轉為白色
-            d3.select(this).style('stroke', 'white')
-            Route_All_Year_Line(d.srcElement.__data__.start_station , d.srcElement.__data__.next_station)
+            // d3.select(this).style('stroke', 'white')
+            // Route_All_Year_Line(d.srcElement.__data__.start_station , d.srcElement.__data__.next_station)
+            var src = d.srcElement.__data__.start_station
+            var dest = d.srcElement.__data__.next_station
+            select_link(src, dest)
         })
     svg.append("g").attr("id", "Circle")
         .selectAll("circle")
@@ -289,18 +245,20 @@ d3.csv("路線.csv").then((data) => {
         .on("click", function (d) {
             //d.srcElement.__data__這能讀取到原本的資料，要不然在這裡的d只會是click這個event
             //這能將所有circle轉為原本的顏色
-            svg.selectAll('line').style('stroke', function (data) {
-                return data.route_color
-            })
-            //這能將所有circle轉為原本的顏色
-            svg.selectAll('circle').style('fill', function (data) {
-                return Check_Station_color(data.station)[0]
-            })
-            //將選取的轉為白色
-            d3.select(this).style('fill', 'white')
-            Station_All_Year_Line(d.srcElement.__data__.station)
-            var year = +document.getElementById("date").value.split("-")[0]
-            OD_Pair_Draw(d.srcElement.__data__.station, "迴龍", year)
+            // svg.selectAll('line').style('stroke', function (data) {
+            //     return data.route_color
+            // })
+            // //這能將所有circle轉為原本的顏色
+            // svg.selectAll('circle').style('fill', function (data) {
+            //     return Check_Station_color(data.station)[0]
+            // })
+            // //將選取的轉為白色
+            // d3.select(this).style('fill', 'white')
+            // Station_All_Year_Line(d.srcElement.__data__.station)
+            // var year = +document.getElementById("date").value.split("-")[0]
+            // OD_Pair_Draw(d.srcElement.__data__.station, "迴龍", year)
+            var station = d.srcElement.__data__.station 
+            select_station(station)
         })
         .on("mousemove", (d) => {
             tooltip.select('text').html(d.srcElement.__data__.station)
@@ -322,19 +280,21 @@ d3.csv("路線.csv").then((data) => {
                 return i < 10
             })
             .append("rect")
-            .attr("x" , 1500)
+            .attr("x" , 1200)
             .attr("y" , (d,i)=>Bar_yScale(i))
             .attr("width" , 0)
             .attr("height" , 20)
             .on("click" , (d)=>{
-                var sta_name
+                var sta_name = ""
                 if(d.srcElement.__data__.station === "BL板橋" || d.srcElement.__data__.station === "Y板橋")
-                    sta_name = "#板橋"
+                    sta_name = "板橋"
                 else
-                    sta_name = "#" + d.srcElement.__data__.station
-                svg.selectAll("line").style("opacity" , 0.3)
-                svg.selectAll("circle").style("opacity" , 0.3)
-                svg.select(sta_name).style("opacity" , 1)
+                    sta_name = d.srcElement.__data__.station
+                // svg.selectAll("line").style("opacity" , 0.3)
+                // svg.selectAll("circle").style("opacity" , 0.3)
+                // svg.select(sta_name).style("opacity" , 1)
+                select_station(sta_name)
+
             })
         svg.append("g").attr("class","Top_Ten_Text")
             .selectAll("text")
@@ -343,7 +303,7 @@ d3.csv("路線.csv").then((data) => {
                 return i < 10
             })
             .append("text")
-            .attr("x" , 1500)
+            .attr("x" , 1200)
             .attr("y" , (d,i)=>Bar_yScale(i)-5)
             .attr("font-size" , "30px")
         //let xAxis = d3.axisBottom(Bar_xScale);
@@ -355,7 +315,7 @@ d3.csv("路線.csv").then((data) => {
             //    .call(xAxis)
             svg.append("g")
                 .attr("class" , "axis")
-                .attr("transform" , "translate(1500,-50)")
+                .attr("transform" , "translate(1200,-20)")
                 .call(yAxis)
         update_network(2017, 1, 1)
         end_time = new Date().getTime()
@@ -396,6 +356,8 @@ function get_second_index(year, month, day) { return day - 1 }
 // args: 年月日
 // func: 根據給定日期更新nextwork
 function update_network(year, month, day) {
+    unselect_object()
+
     i = get_first_index(year, month, day)
     j = get_second_index(year, month, day)
     update_date(year, month, day)
@@ -467,6 +429,36 @@ function update_Text(Source){
         .text(function(d){
             return d.station + "  " + d.Sum.toString() + "人"
         })
+}
+
+
+function select_station(station) {
+    // unselect_object()
+
+    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    d3.selectAll("#" + station).style("opacity" , 1)
+    Station_All_Year_Line(station)
+    var year = +document.getElementById("date").value.split("-")[0]
+    OD_Pair_Draw(station, "迴龍", year)
+}
+
+function select_link(src_station, dest_station) {
+    // unselect_object()
+
+    d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    d3.selectAll("#" + src_station).style("opacity" , 1)
+    d3.selectAll("#" + dest_station).style("opacity" , 1)
+    d3.selectAll("#" + `${src_station}-${dest_station}`).style("opacity" , 1)
+    Route_All_Year_Line(src_station, dest_station)
+}
+
+function unselect_object() {
+    svg.selectAll("line").style("opacity" , 1)
+    svg.selectAll("circle").style("opacity" , 1)
+    hide_OD_pair_svg()
+    hide_line_svg()
 }
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))

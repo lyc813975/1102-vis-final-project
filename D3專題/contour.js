@@ -1,15 +1,15 @@
 var svg_sdj = d3.select("#svg_sdj")
-  .append("svg")
-  .attr("width", 2000)
-  .attr("height", 1200)
-  .append("g")
+    .append("svg")
+    .attr("width", 2000)
+    .attr("height", 1200)
+    .append("g")
 
-var x = d3.scaleLinear()
-    .domain([121.39, 121.62])
-    .range([0, 1000])
-var y = d3.scaleLinear()
-    .domain([24.95, 25.17])
-    .range([800, 100])
+// var x = d3.scaleLinear()
+//     .domain([121.39, 121.62])
+//     .range([0, 1000])
+// var y = d3.scaleLinear()
+//     .domain([24.95, 25.17])
+//     .range([800, 100])
 
 let path_num = 35
 function color_scale(origin_num){
@@ -51,8 +51,8 @@ function contour_update(date_from,date_to,data){
         })
     })
     densityData = d3.contourDensity()
-        .x(function(d) { return x(d.x); })
-        .y(function(d) { return y(d.y); })
+        .x(function(d) { return xScale(d.x); })
+        .y(function(d) { return yScale(d.y); })
         .size([5000,5000])
         .weight(function(d){
             return d.weight
