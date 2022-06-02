@@ -49,7 +49,7 @@ $("#Find_Station").change(function(){
     // d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
     // d3.selectAll(Test_Color).style("opacity" , 1)
     var target_station = $("#Find_Station option:selected").val()
-    if (target_station === "X") return // 空選項除理
+    if (target_station === "X") return // 處理空選項
     select_station(target_station)
 })
 //進階選項
