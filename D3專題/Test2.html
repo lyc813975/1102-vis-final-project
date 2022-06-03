@@ -21,12 +21,12 @@
             <div style="display:flex">
                 <span style="position:relative; ">
                     <label style="font-size: 20px; ">日期 (From):</label>
-                    <input type="text" name="date" id="date" style="width:200px ; height : 30px ; font-size:30px; position: absolute;">  
+                    <input type="text" name="date" id="date" style="width:200px; height : 30px; font-size: 30px; position: absolute;">  
                 </span>
                     <br/><br/>
                 <span style="position:relative; left: 250px;">
                     <label style="font-size: 20px; ">日期 (To):</label>
-                    <input type="text" name="date2" id="date2" style="width:200px ; height : 30px ; font-size:30px; position: absolute;">
+                    <input type="text" name="date2" id="date2" style="width: 200px; height: 30px; font-size: 30px; position: absolute;">
                 </span>
                 <span style="position:relative; left: 500px;">
                     <label style="font-size: 20px; ">搜尋路線</label>
@@ -87,7 +87,9 @@
             </div>
             <div id="svg_sdj"></div>
             <div id="Canvas"></div>
-            <div id="Canvas1"></div>
+            <div id="Canvas1" style="display: none;">
+                <img src="illustration.png" width="150" heigh="350" style="position: absolute; left: 1300px; top:1100px; z-index: 1;">
+            </div>
         </div>
         <script src="contour.js"></script>
         <script src="advanced_Option.js"></script>
@@ -100,7 +102,7 @@
 
 <style>
     body{
-        background-color: gray;
+        background-color: lightgray;
     }
     #svg_sdj{
         margin-top: 1000;

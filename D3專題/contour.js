@@ -1,6 +1,6 @@
 var svg_sdj = d3.select("#svg_sdj")
     .append("svg")
-    .attr("width", 2000)
+    .attr("width", 1500)
     .attr("height", 1200)
     .append("g")
 

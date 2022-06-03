@@ -7,15 +7,13 @@ let OD_Pair_svg = d3.select("#Canvas1")
     .attr('height', OD_height)
     .style('background', 'white')
     .style('position', 'absolute')
-    .style("left", 880).style("top", 1050).style("display", "none")
+    .style("left", 880).style("top", 1050)
 
 // 圖表名稱
-let OD_pair_info_text = OD_Pair_svg.selectAll("text")
-    .data(new Array(20))
-    .enter()
-    .append("text")
+let OD_pair_title = OD_Pair_svg.append("text")
     .attr("x", 80)
-    .attr("y", (d, i) => -280 + i * 20)
+    .attr("y", -260)
+    .style("font-size","22px")
 //Color
 let OD_color = d3.scaleOrdinal()
     .domain(["transferring", "waiting", "orange", "orange2", "yellow", "brown", "blue", "red", "green", "red2", "green2"])
@@ -26,7 +24,6 @@ let x_angle = d3.scaleBand()
     .domain(d3.range(24))
     .range([0, 2 * Math.PI])
     .align(0)
-    
 // 座標軸
 OD_Pair_svg.append("g")
     .attr("text-anchor", "middle")
@@ -74,8 +71,7 @@ let current_OD_pair = []
 
 function OD_Pair_Draw(src, dest, year) {
     var title = [src + "到" + dest]
-    OD_pair_info_text.data(new Array(20)).text((d) => d) // 清掉原本顯示資訊
-    OD_pair_info_text.data(title).text((d) => d)
+    OD_pair_title.text(title)
     // 每次重畫一張圖 先把原有的清掉
     if (!OD_Pair_svg.select("#OD_Test").empty()) {
         OD_Pair_svg.select("#OD_Test").remove()
@@ -88,7 +84,7 @@ function OD_Pair_Draw(src, dest, year) {
     current_OD_pair = get_OD_pair(src, dest, year)
     // OD 全空時 dataset處理會出錯
     // 起點與終點相同時 不畫圖
-    show_OD_pair_svg()
+    show_OD_pair_canvas()
     if (current_OD_pair.length === 0) return
 
     var dataset = JSON.parse(JSON.stringify(current_OD_pair))
@@ -130,57 +126,13 @@ function OD_Pair_Draw(src, dest, year) {
         .selectAll("g")
         .data(dataset).join("g").attr("id", (d, i) => i.toString())
         .selectAll("path")
-        .data((d) => d).join("path").attr("d", (d) => arc(d)).attr("fill", (d) => OD_color(d[1]))
-        // 顯示路徑的詳細資訊
-        .on("click", (d) => {
-            var id = d.srcElement.parentNode.id
-            var OD_pair = current_OD_pair[id]
-            var context = [title, `${id}時`]
-            context = context.concat(OD_pair_to_string(OD_pair))
-            console.log(context)
-            OD_pair_info_text.data(context).text((d) => d)
+        .data((d) => d).join("path").attr("d", (d) => arc(d)).attr("fill", (d) => {
+            var color = d[1]
+            if (color[color.length - 1] == "2") color = color.substring(0, color.length - 1)  
+            return OD_color(color)
         })
-    
 }
 
-function OD_pair_to_string(pairs) {
-    var res = []
-    for (p of pairs) {
-        switch(p[0]) {
-            case "transferring":
-                res.push(`轉乘: ${p[1]}分鐘`)
-                break
-            case "waiting":
-                res.push(`等待: ${p[1]}分鐘`)
-                break
-            case "green":
-            case "green2":
-                res.push(`綠線: ${p[1]}分鐘`)
-                break
-            case "red":
-            case "red2":
-                res.push(`紅線: ${p[1]}分鐘`)
-                break
-            case "yellow":
-                res.push(`黃線: ${p[1]}分鐘`)
-                break
-            case "blue":
-                res.push(`藍線: ${p[1]}分鐘`)
-                break
-            case "orange":
-            case "orange2":
-                res.push(`橘線: ${p[1]}分鐘`)
-                break
-            case "brown":
-                res.push(`棕線: ${p[1]}分鐘`)
-                break
-            default:
-                console.log("Unexpected type")
-        }
-    }
-    return res
-}
+function hide_OD_pair_canvas() { d3.select("#Canvas1").style("display", "none")}
 
-function hide_OD_pair_svg() { OD_Pair_svg.style("display", "none")}
-
-function show_OD_pair_svg() { OD_Pair_svg.style("display", "")}
+function show_OD_pair_canvas() { d3.select("#Canvas1").style("display", "")}

@@ -3,8 +3,8 @@ let current_selection = ""
 //創建svg
 let svg = d3.select("#Canvas")
     .append("svg")
-    .attr('width', 2000)
-    .attr('height', 2000)
+    .attr('width', 1500)
+    .attr('height', 1500)
 let date_box = svg.append("text").attr("x", 800).attr("y", 100).style("font-size", "50px")
 //創建tooltips  的svg
 let tooltip = d3.select("#Canvas")
@@ -276,7 +276,7 @@ d3.csv("路線.csv").then((data) => {
             // return i < 10
         })
         .append("rect")
-        .attr("x", 1200)
+        .attr("x", 1100)
         .attr("y", (d, i) => Bar_yScale(i))
         .attr("width", 0)
         .attr("height", 20)
@@ -299,7 +299,7 @@ d3.csv("路線.csv").then((data) => {
             // return i < 10
         })
         .append("text")
-        .attr("x", 1200)
+        .attr("x", 1100)
         .attr("y", (d, i) => Bar_yScale(i) - 5)
         .attr("font-size", "30px")
     //let xAxis = d3.axisBottom(Bar_xScale);
@@ -311,7 +311,7 @@ d3.csv("路線.csv").then((data) => {
     //    .call(xAxis)
     svg.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(1200,-20)")
+        .attr("transform", "translate(1100,-20)")
         .call(yAxis)
     update_network(2017, 1, 1)
     end_time = new Date().getTime()
@@ -446,7 +446,7 @@ function select_station(station) {
     Station_All_Year_Line(station)
     var year = +document.getElementById("date").value.split("-")[0]
     OD_Pair_Draw(station, "新北投", year)
-    draw_isochrone_map()
+    draw_isochrone_map(station)
 }
 
 function select_link(src_station, dest_station) {
@@ -470,7 +470,7 @@ function unselect_object() {
     svg.selectAll("line").style("opacity", 1)
     svg.selectAll("circle").style("opacity", 1)
     recover_circle_color()
-    hide_OD_pair_svg()
+    hide_OD_pair_canvas()
     hide_line_svg()
 }
 
@@ -480,15 +480,15 @@ function recover_circle_color() {
     })
 }
 
-function draw_isochrone_map() {
-    var station_in_30min = get_available_during_time(30)
-    var station_in_10min = get_available_during_time(10)
+function draw_isochrone_map(station) {
+    var station_in_30min = get_available_during_time(30).filter(s => s != station)
+    var station_in_10min = get_available_during_time(10).filter(s => s != station)
     //要先慢的在快的 不然慢的會蓋掉快的
     for (const s of station_in_30min) {
-        d3.select(`circle[id=\"${s}\"]`).style("fill", "#f065f7").style("opacity", 1)
+        d3.select(`circle[id=\"${s}\"]`).style("fill", "#f065f7").style("opacity", 0.8)
     }
     for (const s of station_in_10min) {
-        d3.select(`circle[id=\"${s}\"]`).style("fill", "#96069e").style("opacity", 1)
+        d3.select(`circle[id=\"${s}\"]`).style("fill", "#96069e").style("opacity", 0.8)
     }
 }
 
