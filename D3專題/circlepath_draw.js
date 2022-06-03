@@ -9,6 +9,7 @@ let OD_Pair_svg = d3.select("#Canvas1")
     .style('position', 'absolute')
     .style("left", 880).style("top", 1050)
 
+//let the second_Station = 
 // 圖表名稱
 let OD_pair_title = OD_Pair_svg.append("text")
     .attr("x", 80)
@@ -44,7 +45,34 @@ OD_Pair_svg.append("g")
             : "rotate(-90)translate(0,-10)")
         .text((d, i) => i % 3 == 0 ? i : "")
     )
-
+let Find_Color2_option = $("#Find_Color2")
+let Find_Station2_option = $("#Find_Station2")
+Find_Color2_option.change(function(){
+    $("#Find_Station2").empty();
+    Test_Color = "." + $("#Find_Color2 option:selected").val()
+    if (Test_Color === ".X") { // 處理空選項
+        //unselect_object()
+        return
+    }
+    Test_Circle = "#Circle " + Test_Color
+    console.log("TTTT=" , Test_Circle)
+    // 第一個為空選項 否則直接選第一個選項會不更新 
+    $("#Find_Station2").append($('<option></option>').val("X").text(""))
+    $(Test_Circle).each(function(i,d){
+        $("#Find_Station2").append($('<option></option>').val(d.id).text(d.id))
+    })
+})
+//選擇車站
+Find_Station2_option.change(function(){
+    // Test_Color = "#" + $("#Find_Station option:selected").val()
+    // console.log(Test_Color)
+    // d3.select("#Line").selectAll("line").style("opacity" , 0.3)
+    // d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
+    // d3.selectAll(Test_Color).style("opacity" , 1)
+    var target_station = $("#Find_Station2 option:selected").val()
+    // if (target_station === "X") return // 處理空選項
+    // select_station(target_station)
+})
 let current_OD_pair = []
 
 //Data   Test

@@ -9,8 +9,11 @@ $("#date").datepicker({
             if(year>=2020) {
                 $("#Find_Color option[value=yellow]").remove()
                 $("#Find_Color").append($('<option></option>').val("yellow").text("yellow"))
+                $("#Find_Color2 option[value=yellow]").remove()
+                $("#Find_Color2").append($('<option></option>').val("yellow").text("yellow"))
             } else {
                 $("#Find_Color option[value=yellow]").remove()
+                $("#Find_Color2 option[value=yellow]").remove()
             }
             $( "#date2" ).datepicker( "option", "minDate", selectedDate );
         }else{
