@@ -214,8 +214,11 @@ function generate_OD_pair(src, dest, year) {
     var waiting_time = {
         'brown': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5],
         'red': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 5, 5, 5, 5, 4, 5, 5, 3, 3, 3, 5, 4, 5, 5, 8],
+        'red2': [-1, -1, -1, -1, -1, -1, 4, 4, 3, 5, 5, 5, 5, 5, 5, 5, 4, 3, 4, 4, 5, 5, 5, 6],
         'green': [-1, -1, -1, -1, -1, -1, 3, 2, 2, 3, 4, 3, 4, 4, 3, 4, 3, 3, 2, 2, 3, 3, 4, 6],
+        'green2': [-1, -1, -1, -1, -1, -1, 8, 6, 6, 8, 10, 10, 8, 10, 10, 8, 10, 6, 6, 10, 8, 10, 8, 8],
         'orange': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
+        'orange2': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
         'blue': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 4, 5, 5, 5, 4, 4, 4, 3, 3, 3, 4, 4, 5, 4],
         'yellow': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5]
     }
@@ -226,7 +229,7 @@ function generate_OD_pair(src, dest, year) {
         total_time[i] = []
         if (i < 6) continue
         for ([type, cost] of riding_time) {
-            if(type[type.length - 1] === "2") type = type.substring(0, type.length - 1)
+            // if(type[type.length - 1] === "2") type = type.substring(0, type.length - 1)
             if (type !== "transferring") total_time[i].push(["waiting", waiting_time[type][i]])
             total_time[i].push([type, cost])
         }
@@ -242,6 +245,9 @@ function is_the_same_line(station1, station2) {
 }
 
 function get_line_of_station(station) {
+    if (typeof station === "string") {
+        station = station_to_code[station]
+    }
     var lines = {
         'brown': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
         'red': [24, 25, 26, 8, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 45, 46, 47, 48, 49, 50],

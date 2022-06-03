@@ -11,16 +11,15 @@ let OD_Pair_svg = d3.select("#Canvas1")
 
 // 圖表名稱
 let OD_pair_info_text = OD_Pair_svg.selectAll("text")
-    .data(new Array(18))
+    .data(new Array(20))
     .enter()
     .append("text")
     .attr("x", 80)
     .attr("y", (d, i) => -280 + i * 20)
 //Color
 let OD_color = d3.scaleOrdinal()
-    .domain(["transferring", "waiting", "orange", "yellow", "brown", "blue", "red", "green", "grey"])
-    // .range(["#000000", "#ff00ff", "#ff8000", "ffff00", "#994c00", "#0080ff", "#ff0000", "#009900", "#a0a0a0"])
-    .range(["gray", "black", "orange", "yellow", "brown", "blue", "red", "green", "#a0a0a0"])
+    .domain(["transferring", "waiting", "orange", "orange2", "yellow", "brown", "blue", "red", "green", "red2", "green2"])
+    .range(["gray", "black", "#F8B61C", "#F8B61C", "#FDDB00", "#C48C31", "#0070BD", "#E3002C", "#008659", "#F3A5A8", "#DAE11F"])
 
 // 0 ~ 23   給予角度
 let x_angle = d3.scaleBand()
@@ -75,8 +74,8 @@ let current_OD_pair = []
 
 function OD_Pair_Draw(src, dest, year) {
     var title = [src + "到" + dest]
+    OD_pair_info_text.data(new Array(20)).text((d) => d) // 清掉原本顯示資訊
     OD_pair_info_text.data(title).text((d) => d)
-
     // 每次重畫一張圖 先把原有的清掉
     if (!OD_Pair_svg.select("#OD_Test").empty()) {
         OD_Pair_svg.select("#OD_Test").remove()
@@ -154,9 +153,11 @@ function OD_pair_to_string(pairs) {
                 res.push(`等待: ${p[1]}分鐘`)
                 break
             case "green":
+            case "green2":
                 res.push(`綠線: ${p[1]}分鐘`)
                 break
             case "red":
+            case "red2":
                 res.push(`紅線: ${p[1]}分鐘`)
                 break
             case "yellow":
@@ -166,6 +167,7 @@ function OD_pair_to_string(pairs) {
                 res.push(`藍線: ${p[1]}分鐘`)
                 break
             case "orange":
+            case "orange2":
                 res.push(`橘線: ${p[1]}分鐘`)
                 break
             case "brown":

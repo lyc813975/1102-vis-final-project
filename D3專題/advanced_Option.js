@@ -6,10 +6,12 @@ $("#date").datepicker({
         $("#date2").empty()
         if(selectedDate != ""){
             year = +selectedDate.split("-")[0]
-            if(year>=2020) 
+            if(year>=2020) {
+                $("#Find_Color option[value=yellow]").remove()
                 $("#Find_Color").append($('<option></option>').val("yellow").text("yellow"))
-            else 
-                $("#Find_Color option[value=yellow]" ).remove()
+            } else {
+                $("#Find_Color option[value=yellow]").remove()
+            }
             $( "#date2" ).datepicker( "option", "minDate", selectedDate );
         }else{
             $( "#date2" ).datepicker( "option", "minDate", new Date(2017, 1 - 1, 1) );
