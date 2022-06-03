@@ -88,7 +88,7 @@ function OD_Pair_Draw(src, dest, year) {
     // OD 全空時 dataset處理會出錯
     if (src === dest) return
 
-    current_OD_pair = generate_OD_pair(src, dest, year)
+    current_OD_pair = get_OD_pair(src, dest, year)
     var dataset = JSON.parse(JSON.stringify(current_OD_pair))
     var OD_total = []
     dataset.forEach(function (dd, index) {

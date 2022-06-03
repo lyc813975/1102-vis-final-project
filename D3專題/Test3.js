@@ -431,14 +431,14 @@ function update_Text(Source) {
         })
 }
 
-
 function select_station(station) {
     if (current_selection[0] !== "N") unselect_object()
     if ("N" + station === current_selection) {
-        current_selection = ""
         unselect_object()
         return
     }
+    recover_circle_color()
+
     current_selection = "N" + station
     d3.selectAll("line").style("opacity", 0.3)
     d3.selectAll("circle").style("opacity", 0.3)
@@ -446,13 +446,13 @@ function select_station(station) {
     Station_All_Year_Line(station)
     var year = +document.getElementById("date").value.split("-")[0]
     OD_Pair_Draw(station, "新北投", year)
+    draw_isochrone_map()
 }
 
 function select_link(src_station, dest_station) {
     var link = `${src_station}-${dest_station}`
     if (current_selection[0] !== "L") unselect_object()
     if ("L" + link === current_selection) {
-        current_selection = ""
         unselect_object()
         return
     }
@@ -466,10 +466,30 @@ function select_link(src_station, dest_station) {
 }
 
 function unselect_object() {
+    current_selection = ""
     svg.selectAll("line").style("opacity", 1)
     svg.selectAll("circle").style("opacity", 1)
+    recover_circle_color()
     hide_OD_pair_svg()
     hide_line_svg()
+}
+
+function recover_circle_color() {
+    svg.selectAll('circle').style('fill', function (data) {
+        return OD_color(Check_Station_color(data.station)[0])
+    })
+}
+
+function draw_isochrone_map() {
+    var station_in_30min = get_available_during_time(30)
+    var station_in_10min = get_available_during_time(10)
+    //要先慢的在快的 不然慢的會蓋掉快的
+    for (const s of station_in_30min) {
+        d3.select(`circle[id=\"${s}\"]`).style("fill", "#f065f7").style("opacity", 1)
+    }
+    for (const s of station_in_10min) {
+        d3.select(`circle[id=\"${s}\"]`).style("fill", "#96069e").style("opacity", 1)
+    }
 }
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))

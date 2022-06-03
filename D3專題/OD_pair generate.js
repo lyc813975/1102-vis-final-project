@@ -49,6 +49,10 @@ class LinkedList {
     }
 }
 
+function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+}
+
 var path_table = new Array(108)
 for (var i = 0; i < path_table.length; ++i) path_table[i] = Array(108).fill("")
 var path_table_2020 = new Array(119)
@@ -176,65 +180,161 @@ var station_to_code = {
     "新北產業園區": 118,
 }
 
-function generate_OD_pair(src, dest, year) {
-    src = station_to_code[src]
-    dest = station_to_code[dest]
-    var reverse = false
-    // path必須由編號小的站到編號大的站獲得
-    if (src > dest) {
-        var temp = src
-        src = dest
-        dest = temp
-        reverse = true
-    }
-    var riding_time = []
-    var cost = 0
-    var path = (year < 2020) ? path_table[src][dest] : path_table_2020[src][dest]
-    var nodes = path.split(',')
-    if (reverse) nodes = nodes.reverse()
-    // console.log(nodes)
-    var now_line = is_the_same_line(Number(nodes[0]), Number(nodes[1]))
-    // 搭乘和轉乘時間
-    for (var i = 0; i < nodes.length - 1; ++i) {
-        var next_line = is_the_same_line(Number(nodes[i]), Number(nodes[i + 1]))
-        if (now_line != next_line) {
-            if (now_line === undefined) {
-                riding_time.pop()
-                riding_time.push(["transferring", 7])
-            } else {
-                riding_time.push([now_line, cost])
-                riding_time.push(["transferring", 2])
-            }
-            cost = 0
-        }
-        cost += riding_cost[Number(nodes[i])].getCost(Number(nodes[i + 1]))
-        now_line = next_line
-    }
-    riding_time.push([now_line, cost])
-    var waiting_time = {
-        'brown': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5],
-        'red': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 5, 5, 5, 5, 4, 5, 5, 3, 3, 3, 5, 4, 5, 5, 8],
-        'red2': [-1, -1, -1, -1, -1, -1, 4, 4, 3, 5, 5, 5, 5, 5, 5, 5, 4, 3, 4, 4, 5, 5, 5, 6],
-        'green': [-1, -1, -1, -1, -1, -1, 3, 2, 2, 3, 4, 3, 4, 4, 3, 4, 3, 3, 2, 2, 3, 3, 4, 6],
-        'green2': [-1, -1, -1, -1, -1, -1, 8, 6, 6, 8, 10, 10, 8, 10, 10, 8, 10, 6, 6, 10, 8, 10, 8, 8],
-        'orange': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
-        'orange2': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
-        'blue': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 4, 5, 5, 5, 4, 4, 4, 3, 3, 3, 4, 4, 5, 4],
-        'yellow': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5]
-    }
+var current_OD_pairs = new Array(119)
+var current_OD_pairs_source = ""
 
-    var total_time = new Array(24)
-    // 加入等車時間
-    for (var i = 0; i < total_time.length; ++i) {
-        total_time[i] = []
-        if (i < 6) continue
-        for ([type, cost] of riding_time) {
-            // if(type[type.length - 1] === "2") type = type.substring(0, type.length - 1)
-            if (type !== "transferring") total_time[i].push(["waiting", waiting_time[type][i]])
-            total_time[i].push([type, cost])
-        }
+function get_available_during_time(time) {
+    console.log(current_OD_pairs_source)
+    res = []
+    for (var i = 0; i < current_OD_pairs.length; ++i) {
+        console.log(current_OD_pairs[i]["cost"])
+        if (current_OD_pairs[i]["cost"] < time) res.push(getKeyByValue(station_to_code, i))
     }
-    return total_time
+    return res
+}
+
+function generate_OD_pair(source, year) {
+    current_OD_pairs_source = src
+    var node_number = (year < 2020) ? 108 : 119
+    var path = (year < 2020) ? path_table : path_table_2020
+    var source = station_to_code[source]
+    for (var index = 0; index < node_number; ++index) {
+        var dest = index
+        var src =source
+        if (src === dest) {
+            current_OD_pairs[index] = {"pair": new Array(24), "cost": 0}
+            continue
+        }
+        var reverse = false
+        // path必須由編號小的站到編號大的站獲得
+        if (src > dest) {
+            var temp = src
+            src = dest
+            dest = temp
+            reverse = true
+        }
+        var riding_time = []
+        var cost = 0
+        var nodes = path[src][dest].split(',')
+        if (reverse) nodes = nodes.reverse()
+        // console.log(nodes)
+        var now_line = is_the_same_line(Number(nodes[0]), Number(nodes[1]))
+        // 搭乘和轉乘時間
+        for (var i = 0; i < nodes.length - 1; ++i) {
+            var next_line = is_the_same_line(Number(nodes[i]), Number(nodes[i + 1]))
+            if (now_line != next_line) {
+                if (now_line === undefined) {
+                    riding_time.pop()
+                    riding_time.push(["transferring", 7])
+                } else {
+                    riding_time.push([now_line, cost])
+                    riding_time.push(["transferring", 2])
+                }
+                cost = 0
+            }
+            cost += riding_cost[Number(nodes[i])].getCost(Number(nodes[i + 1]))
+            now_line = next_line
+        }
+        riding_time.push([now_line, cost])
+        var waiting_time = {
+            'brown': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5],
+            'red': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 5, 5, 5, 5, 4, 5, 5, 3, 3, 3, 5, 4, 5, 5, 8],
+            'red2': [-1, -1, -1, -1, -1, -1, 4, 4, 3, 5, 5, 5, 5, 5, 5, 5, 4, 3, 4, 4, 5, 5, 5, 6],
+            'green': [-1, -1, -1, -1, -1, -1, 3, 2, 2, 3, 4, 3, 4, 4, 3, 4, 3, 3, 2, 2, 3, 3, 4, 6],
+            'green2': [-1, -1, -1, -1, -1, -1, 8, 6, 6, 8, 10, 10, 8, 10, 10, 8, 10, 6, 6, 10, 8, 10, 8, 8],
+            'orange': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
+            'orange2': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
+            'blue': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 4, 5, 5, 5, 4, 4, 4, 3, 3, 3, 4, 4, 5, 4],
+            'yellow': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5]
+        }
+        var total_time = new Array(24)
+        // 加入等車時間
+        for (var i = 0; i < total_time.length; ++i) {
+            total_time[i] = []
+            if (i < 6) continue
+            for (const [type, cost] of riding_time) {
+                // if(type[type.length - 1] === "2") type = type.substring(0, type.length - 1)
+                if (type !== "transferring") total_time[i].push(["waiting", waiting_time[type][i]])
+                total_time[i].push([type, cost])
+            }
+        }
+
+        var sum = 0
+        for (const [type, cost] of total_time[19]) {
+            sum += cost
+        }
+        current_OD_pairs[index] = {"pair": total_time, "cost": sum}
+    }
+    if (year < 2020) {
+        for (var i = 108; i < 119; ++i)
+            current_OD_pairs[i] = {"pair": new Array(24), "cost": 0}
+    }
+}
+
+function get_OD_pair(src, dest, year) {
+    if (src != current_OD_pairs_source) {
+        generate_OD_pair(src, year)
+    }
+    dest = station_to_code[dest]
+    return current_OD_pairs[dest]["pair"]
+    // src = station_to_code[src]
+    // dest = station_to_code[dest]
+    // var reverse = false
+    // // path必須由編號小的站到編號大的站獲得
+    // if (src > dest) {
+    //     var temp = src
+    //     src = dest
+    //     dest = temp
+    //     reverse = true
+    // }
+    // var riding_time = []
+    // var cost = 0
+    // var path = (year < 2020) ? path_table[src][dest] : path_table_2020[src][dest]
+    // var nodes = path.split(',')
+    // if (reverse) nodes = nodes.reverse()
+    // // console.log(nodes)
+    // var now_line = is_the_same_line(Number(nodes[0]), Number(nodes[1]))
+    // // 搭乘和轉乘時間
+    // for (var i = 0; i < nodes.length - 1; ++i) {
+    //     var next_line = is_the_same_line(Number(nodes[i]), Number(nodes[i + 1]))
+    //     if (now_line != next_line) {
+    //         if (now_line === undefined) {
+    //             riding_time.pop()
+    //             riding_time.push(["transferring", 7])
+    //         } else {
+    //             riding_time.push([now_line, cost])
+    //             riding_time.push(["transferring", 2])
+    //         }
+    //         cost = 0
+    //     }
+    //     cost += riding_cost[Number(nodes[i])].getCost(Number(nodes[i + 1]))
+    //     now_line = next_line
+    // }
+    // riding_time.push([now_line, cost])
+    // var waiting_time = {
+    //     'brown': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5],
+    //     'red': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 5, 5, 5, 5, 4, 5, 5, 3, 3, 3, 5, 4, 5, 5, 8],
+    //     'red2': [-1, -1, -1, -1, -1, -1, 4, 4, 3, 5, 5, 5, 5, 5, 5, 5, 4, 3, 4, 4, 5, 5, 5, 6],
+    //     'green': [-1, -1, -1, -1, -1, -1, 3, 2, 2, 3, 4, 3, 4, 4, 3, 4, 3, 3, 2, 2, 3, 3, 4, 6],
+    //     'green2': [-1, -1, -1, -1, -1, -1, 8, 6, 6, 8, 10, 10, 8, 10, 10, 8, 10, 6, 6, 10, 8, 10, 8, 8],
+    //     'orange': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
+    //     'orange2': [-1, -1, -1, -1, -1, -1, 4, 3, 3, 4, 5, 4, 5, 5, 5, 5, 3, 3, 3, 5, 4, 5, 5, 6],
+    //     'blue': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 4, 5, 5, 5, 4, 4, 4, 3, 3, 3, 4, 4, 5, 4],
+    //     'yellow': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5]
+    // }
+
+    // var total_time = new Array(24)
+    // // 加入等車時間
+    // for (var i = 0; i < total_time.length; ++i) {
+    //     total_time[i] = []
+    //     if (i < 6) continue
+    //     for ([type, cost] of riding_time) {
+    //         // if(type[type.length - 1] === "2") type = type.substring(0, type.length - 1)
+    //         if (type !== "transferring") total_time[i].push(["waiting", waiting_time[type][i]])
+    //         total_time[i].push([type, cost])
+    //     }
+    // }
+    // return total_time
 }
 
 function is_the_same_line(station1, station2) {
