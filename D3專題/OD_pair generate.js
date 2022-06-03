@@ -184,10 +184,8 @@ var current_OD_pairs = new Array(119)
 var current_OD_pairs_source = ""
 
 function get_available_during_time(time) {
-    console.log(current_OD_pairs_source)
     res = []
     for (var i = 0; i < current_OD_pairs.length; ++i) {
-        console.log(current_OD_pairs[i]["cost"])
         if (current_OD_pairs[i]["cost"] < time) res.push(getKeyByValue(station_to_code, i))
     }
     return res
@@ -195,6 +193,7 @@ function get_available_during_time(time) {
 
 function generate_OD_pair(source, year) {
     current_OD_pairs_source = src
+    current_OD_pairs_year = year
     var node_number = (year < 2020) ? 108 : 119
     var path = (year < 2020) ? path_table : path_table_2020
     var source = station_to_code[source]
@@ -202,7 +201,7 @@ function generate_OD_pair(source, year) {
         var dest = index
         var src =source
         if (src === dest) {
-            current_OD_pairs[index] = {"pair": new Array(24), "cost": 0}
+            current_OD_pairs[index] = {"pair": new Array(), "cost": 0}
             continue
         }
         var reverse = false
@@ -224,6 +223,7 @@ function generate_OD_pair(source, year) {
             var next_line = is_the_same_line(Number(nodes[i]), Number(nodes[i + 1]))
             if (now_line != next_line) {
                 if (now_line === undefined) {
+                    console.log(riding_time)
                     riding_time.pop()
                     riding_time.push(["transferring", 7])
                 } else {
@@ -236,6 +236,10 @@ function generate_OD_pair(source, year) {
             now_line = next_line
         }
         riding_time.push([now_line, cost])
+        if (now_line === undefined) {
+            riding_time.pop()
+            riding_time.push(["transferring", 7])
+        }
         var waiting_time = {
             'brown': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 5, 5, 5, 5],
             'red': [-1, -1, -1, -1, -1, -1, 3, 3, 3, 5, 5, 5, 5, 4, 5, 5, 3, 3, 3, 5, 4, 5, 5, 8],
@@ -253,6 +257,7 @@ function generate_OD_pair(source, year) {
             total_time[i] = []
             if (i < 6) continue
             for (const [type, cost] of riding_time) {
+                // console.log(type, cost)
                 // if(type[type.length - 1] === "2") type = type.substring(0, type.length - 1)
                 if (type !== "transferring") total_time[i].push(["waiting", waiting_time[type][i]])
                 total_time[i].push([type, cost])
@@ -267,12 +272,12 @@ function generate_OD_pair(source, year) {
     }
     if (year < 2020) {
         for (var i = 108; i < 119; ++i)
-            current_OD_pairs[i] = {"pair": new Array(24), "cost": 0}
+            current_OD_pairs[i] = {"pair": new Array(), "cost": 0}
     }
 }
 
 function get_OD_pair(src, dest, year) {
-    if (src != current_OD_pairs_source) {
+    if (src != current_OD_pairs_source || year != current_OD_pairs_year) {
         generate_OD_pair(src, year)
     }
     dest = station_to_code[dest]

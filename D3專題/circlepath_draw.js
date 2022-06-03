@@ -84,11 +84,13 @@ function OD_Pair_Draw(src, dest, year) {
     if (OD_Pair_svg.select("#OD_Test").empty()) {
         //console.log("沒有id = OD_Test 的 g")
     }
-    // 起點與終點相同時 不畫圖
-    // OD 全空時 dataset處理會出錯
-    if (src === dest) return
-
+    
     current_OD_pair = get_OD_pair(src, dest, year)
+    // OD 全空時 dataset處理會出錯
+    // 起點與終點相同時 不畫圖
+    show_OD_pair_svg()
+    if (current_OD_pair.length === 0) return
+
     var dataset = JSON.parse(JSON.stringify(current_OD_pair))
     var OD_total = []
     dataset.forEach(function (dd, index) {
@@ -139,7 +141,6 @@ function OD_Pair_Draw(src, dest, year) {
             OD_pair_info_text.data(context).text((d) => d)
         })
     
-    show_OD_pair_svg()
 }
 
 function OD_pair_to_string(pairs) {
