@@ -284,7 +284,7 @@ d3.csv("路線.csv").then((data) => {
             var sta_name = d.srcElement.__data__.station
             // if(d.srcElement.__data__.station === "BL板橋" || d.srcElement.__data__.station === "Y板橋")
             // sta_name = "板橋"
-            console.log(sta_name)
+            // console.log(sta_name)
             // svg.selectAll("line").style("opacity" , 0.3)
             // svg.selectAll("circle").style("opacity" , 0.3)
             // svg.select(sta_name).style("opacity" , 1)
@@ -445,7 +445,7 @@ function select_station(station) {
     d3.select(`circle[id=\"${station}\"]`).style("opacity", 1)
     Station_All_Year_Line(station)
     var year = +document.getElementById("date").value.split("-")[0]
-    OD_Pair_Draw(station, "新北投", year)
+    OD_Pair_Draw(station, "台北車站", year)
     draw_isochrone_map(station)
 }
 

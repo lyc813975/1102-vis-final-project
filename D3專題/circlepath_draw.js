@@ -9,12 +9,18 @@ let OD_Pair_svg = d3.select("#Canvas1")
     .style('position', 'absolute')
     .style("left", 880).style("top", 1050)
 
-//let the second_Station = 
+var current_OD_pairs_source1 = ""
+
 // 圖表名稱
 let OD_pair_title = OD_Pair_svg.append("text")
     .attr("x", 80)
     .attr("y", -260)
     .style("font-size","22px")
+OD_Pair_svg.append("text")
+    .attr("x", -8)
+    .attr("y", 5)
+    .style("font-size","18px")
+    .text("時")
 //Color
 let OD_color = d3.scaleOrdinal()
     .domain(["transferring", "waiting", "orange", "orange2", "yellow", "brown", "blue", "red", "green", "red2", "green2"])
@@ -55,7 +61,7 @@ Find_Color2_option.change(function(){
         return
     }
     Test_Circle = "#Circle " + Test_Color
-    console.log("TTTT=" , Test_Circle)
+    // console.log("TTTT=" , Test_Circle)
     // 第一個為空選項 否則直接選第一個選項會不更新 
     $("#Find_Station2").append($('<option></option>').val("X").text(""))
     $(Test_Circle).each(function(i,d){
@@ -70,10 +76,13 @@ Find_Station2_option.change(function(){
     // d3.select("#Circle").selectAll("circle").style("opacity" , 0.3)
     // d3.selectAll(Test_Color).style("opacity" , 1)
     var target_station = $("#Find_Station2 option:selected").val()
+    // console.log(target_station)
+    var year = +document.getElementById("date").value.split("-")[0]
+    OD_Pair_Draw(current_OD_pairs_source1, target_station, year)
     // if (target_station === "X") return // 處理空選項
     // select_station(target_station)
 })
-let current_OD_pair = []
+// let current_OD_pair = []
 
 //Data   Test
 //OD_data[24小時][動作 , 花費時間]
@@ -98,6 +107,7 @@ let current_OD_pair = []
 // OD_Pair_Draw()
 
 function OD_Pair_Draw(src, dest, year) {
+    current_OD_pairs_source1 = src
     var title = [src + "到" + dest]
     OD_pair_title.text(title)
     // 每次重畫一張圖 先把原有的清掉
