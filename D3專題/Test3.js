@@ -34,12 +34,6 @@ let xScale = d3.scaleLinear()
 let Bar_yScale = d3.scaleLinear()
     .domain([0, 15])
     .range([70, 900])
-var radius_scale = d3.scaleLinear()
-    .domain([192, 450261])
-    .range([$("#Min_Circle_Width").val(), $("#Max_Circle_Width").val()])
-var width_scale = d3.scaleLinear()
-    .domain([42, 469569])
-    .range([$("#Min_Line_Width").val(), $("#Max_Line_Width").val()])
 //圓半徑 跟  線寬度  可能要再想想，  因為根據Range的不同，可能上下限不同
 var Every_Route = []
 let Time_and_All_Data = []
@@ -372,15 +366,9 @@ function update_date(year, month, day) {
 }
 
 function update_node(source_data) {
-    // var min_node_throughput = d3.min(source_data.station, d => {
-    //     if (d.Sum != 0) {
-    //         return d.Sum
-    //     }
-    // })
-    // var max_node_throughput = d3.max(source_data.station, d => d.Sum)
-    // var radius_scale = d3.scaleLinear()
-    //     .domain([min_node_throughput, max_node_throughput])
-    //     .range([$("#Min_Circle_Width").val(), $("#Max_Circle_Width").val()])
+    var radius_scale = d3.scaleLinear()
+        .domain([192, 450261])
+        .range([$("#Min_Circle_Width").val(), $("#Max_Circle_Width").val()])
     svg.selectAll("circle")
         .data(source_data.station)
         .transition().duration(500)
@@ -392,13 +380,9 @@ function update_node(source_data) {
 }
 
 function update_link(source_data) {
-    // var min_link_flow = d3.min(source_data.route, d => {
-    //     if (d.route_sum != 0) return d.route_sum
-    // })
-    // var max_link_flow = d3.max(source_data.route, d => d.route_sum)
-    // var width_scale = d3.scaleLinear()
-    //     .domain([min_link_flow, max_link_flow])
-    //     .range([$("#Min_Line_Width").val(), $("#Max_Line_Width").val()])
+    var width_scale = d3.scaleLinear()
+        .domain([42, 469569])
+        .range([$("#Min_Line_Width").val(), $("#Max_Line_Width").val()])
     svg.selectAll("line")
         .data(source_data.route)
         .transition().duration(500)
