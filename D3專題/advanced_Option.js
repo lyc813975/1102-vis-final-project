@@ -138,3 +138,12 @@ $("#contour_Option").change(function(){
         $("#svg_sdj").hide()
     }
 })
+$("#Base_Option").change(function(){
+    if($("#Base_Option").is(":checked") == true){
+        $("#Line").show()
+        $("#Circle").show()
+    }else{
+        $("#Line").hide()
+        $("#Circle").hide()
+    }
+})

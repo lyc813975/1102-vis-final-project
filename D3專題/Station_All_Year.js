@@ -9,7 +9,7 @@ let Line_svg = d3.select("#Canvas")
     .attr('height', 400)
     .style('background', 'white')
     .style('position', 'absolute')
-    .style("left" , 50).style("top",1050).style("display" , "none")
+    .style("left" , 50).style("top",1100).style("display" , "none")
 
 Line_svg.append("g").attr("class","Spr_Test")//.style("opacity" , 0)
     .append("path").attr("class" , "Special_path")
