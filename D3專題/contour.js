@@ -103,28 +103,29 @@ Promise.all([
 // function definition
 // 判斷是否在範圍
 function date_judge(target_date,min_date,max_date){
-    if(target_date[0] > min_date[0] && target_date[0] < max_date[0]){
-        return 1
+    //console.log(target_date,min_date,max_date)
+    if(target_date[0] < min_date[0] || target_date[0] > max_date[0]){
+        return 0
     }
-    else if(target_date[0] == min_date[0]){
-        if(target_date[1] > min_date[1]){
-            return 1
+    if(target_date[0] == min_date[0]){
+        if(target_date[1] < min_date[1] ){
+            return 0
         }
         else if(target_date[1] == min_date[1]){
-            if(target_date[2] >= min_date[2]){
-                return 1
+            if(target_date[2] < min_date[2]){
+                return 0
             }
         }
     }
-    else if(target_date[0] == max_date[0]){
-        if(target_date[1] < max_date[1]){
-            return 1
+    if(target_date[0] == max_date[0]){
+        if(target_date[1] > max_date[1]){
+            return 0
         }
         else if(target_date[1] == max_date[1]){
-            if(target_date[2] <= max_date[2]){
-                return 1
+            if(target_date[2] > max_date[2]){
+                return 0
             }
         }
     }
-    return 0
+    return 1
 }
