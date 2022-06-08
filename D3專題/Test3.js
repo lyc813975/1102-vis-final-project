@@ -459,6 +459,7 @@ function unselect_object() {
 }
 
 function recover_circle_color() {
+    d3.select("#Canvas").select("img[id=illustration2]").style("display", "none")
     svg.selectAll('circle').style('fill', function (data) {
         return OD_color(Check_Station_color(data.station)[0])
     })
@@ -468,6 +469,7 @@ function draw_isochrone_map(station) {
     var station_in_30min = get_available_during_time(30).filter(s => s != station)
     var station_in_10min = get_available_during_time(10).filter(s => s != station)
     //要先慢的在快的 不然慢的會蓋掉快的
+    d3.select("#Canvas").select("img[id=illustration2]").style("display", "")
     for (const s of station_in_30min) {
         d3.select(`circle[id=\"${s}\"]`).style("fill", "#f065f7").style("opacity", 0.8)
     }
