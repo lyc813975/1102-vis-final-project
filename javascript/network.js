@@ -4,7 +4,7 @@ let current_selection = ""
 let svg = d3.select("#Canvas")
     .append("svg")
     .attr('width', 1500)
-    .attr('height', 1500)
+    .attr('height', 1600)
 let date_box = svg.append("text").attr("x", 800).attr("y", 100).style("font-size", "50px")
 //創建tooltips  的svg
 let tooltip = d3.select("#Canvas")
