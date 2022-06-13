@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width = device-width , initial-scale = 1.0">
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <link rel="stylesheet" href="jquery/jquery-ui.min.css">
+        <script src="jquery/external/jquery/jquery.js"></script>
+        <script src="jquery/jquery-ui.min.js"></script>
+
+        <!-- sdj's library import -->
+        <script src="https://d3js.org/d3-contour.v1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3-color@3"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3-interpolate@3"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@3"></script>
+    </head>
+    <body>
+        <div id="Title" style="text-align: center;font-size:50px;">台北捷運流量分析</div>
+        <div id="cnavas-all" style="float: left;">
+            <!--尋找選項-->
+            <div style="display:flex">
+                <span style="position:relative; ">
+                    <label style="font-size: 20px; ">日期 (From):</label>
+                    <input type="text" name="date" id="date" style="width:200px; height : 30px; font-size: 30px; position: absolute;">  
+                </span>
+                    <br/><br/>
+                <span style="position:relative; left: 250px;">
+                    <label style="font-size: 20px; ">日期 (To):</label>
+                    <input type="text" name="date2" id="date2" style="width: 200px; height: 30px; font-size: 30px; position: absolute;">
+                </span>
+                <span style="position:relative; left: 500px;">
+                    <label style="font-size: 20px; ">搜尋路線</label>
+                    <select id="Find_Color"style="width:260px ;font-size:30px;position: absolute;">
+                        <option value="X"></option>
+                        <option value="blue">板南線(藍線)</option>
+                        <option value="green">松山新店線(綠線)</option>
+                        <option value="red">淡水信義線(紅線)</option>
+                        <option value="brown">文湖線(棕線)</option>
+                        <option value="orange">中和新蘆線(橘線)</option>
+                        <!-- <option value="yellow">yellow</option> -->
+                    </select>
+                  </span>
+                <span style="position:relative; left: 780px;">
+                    <label style="font-size: 20px; ">搜尋車站</label>
+                    <select id="Find_Station"style="width:200px ;font-size:30px;position: absolute;">
+                    </select>
+                </span>
+            </div>
+            <span style="position: relative;">
+                <label style="font-size: 20px; ">進階選項</label>
+                <input type="checkbox" name="hidden_Option" id="hidden_Option">
+            </span>
+            <!--進階選項-->
+            <div id="hidden_Block" style="display: none;">
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">圓半徑(Max)</label>
+                    <input type="range" name="Max_Circle_Width" id="Max_Circle_Width" min="7" max="50" value="10" step="1">
+                    <label id="Max_Circle_Width_Text"style="font-size: 20px;">10</label>
+                </span>
+                 , 
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">圓半徑(Min)</label>
+                    <input type="range" name="Min_Circle_Width" id="Min_Circle_Width" min="1" max="7" value="5" step="1">
+                    <label id="Min_Circle_Width_Text" style="font-size: 20px; ">5</label>
+                </span>
+                ,
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">等高線圖</label>
+                    <input type="checkbox" name="contour_Option" id="contour_Option" checked>
+                </span>
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">折線圖(詳細)</label>
+                    <input type="checkbox" name="Alone_Option" id="Alone_Option" >
+                </span>
+                <br/>
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">線寬度(Max)</label>
+                    <input type="range" name="Max_Line_Width" id="Max_Line_Width" min="10" max="30" value="15" step="1">
+                    <label id="Max_Line_Width_Text" style="font-size: 20px; ">15</label>  
+                </span>
+                ,
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">線寬度(Min)</label>
+                    <input type="range" name="Min_Line_Width" id="Min_Line_Width" min="1" max="10" value="3" step="1">
+                    <label id="Min_Line_Width_Text" style="font-size: 20px; ">3</label>  
+                </span>
+                ,
+                <span style="position: relative;">
+                    <label style="font-size: 20px; ">捷運圖</label>
+                    <input type="checkbox" name="Base_Option" id="Base_Option" checked>
+                </span>
+            </div>
+            <div id="svg_sdj"></div>
+            <div id="Canvas">
+                <img src="pic/illustration2.png" id= "illustration2" width="100" heigh="50" style="display: none; position: absolute; left: 900px; top:930px; z-index: 1;">
+            </div>
+            <div id="Canvas1" style="display: none;">
+                <span style="position:relative; left: 540px; top : -130px">
+                    <label style="font-size: 20px; ">選擇終點路線</label>
+                    <select id="Find_Color2"style="width:200px ;font-size:23px;position: absolute;">
+                        <option value="X"></option>
+                        <option value="blue">板南線(藍線)</option>
+                        <option value="green">松山新店線(綠線)</option>
+                        <option value="red">淡水信義線(紅線)</option>
+                        <option value="brown">文湖線(棕線)</option>
+                        <option value="orange">中和新蘆線(橘線)</option>
+                    </select>
+                </span>
+                <span style="position:relative; left: 420px; top : -80px">
+                    <label style="font-size: 20px; ">選擇終點車站</label>
+                    <select id="Find_Station2"style="width:200px ;font-size:23px;position: absolute;">
+                    </select>
+                </span>
+                <img src="pic/illustration.png" width="120" heigh="280" style="position: absolute; left: 1350px; top:1150px; z-index: 1;">
+            </div>
+        </div>
+        <script src="javascript/contour.js"></script>
+        <script src="javascript/advanced_Option.js"></script>
+        <script src="javascript/network.js"></script>
+        <script src="javascript/OD_pair generate.js"></script>
+        <script src="javascript/circlepath_draw.js"></script>
+        <script src="javascript/Station_All_Year.js"></script>
+    </body>
+</html>
+
+<style>
+    body{
+        background-color: lightgray;
+    }
+    #svg_sdj{
+        margin-top: 1000;
+        position: absolute;
+        z-index: -1;
+    } 
+    #cavas-all{
+        position:relative;
+    }
+</style>
